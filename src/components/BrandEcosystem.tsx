@@ -174,7 +174,7 @@ export const BrandEcosystem: React.FC<{ onPlayDemo?: () => void }> = ({ onPlayDe
   const activeBrand = subBrands.find(b => b.id === activeBrandId) || subBrands[0];
 
   return (
-    <section id="brand-ecosystem" className="relative py-28 md:py-40 bg-zinc-50 border-t border-rose-100 px-6 md:px-12 overflow-hidden transition-colors duration-500">
+    <section id="brand-ecosystem" className="relative py-28 md:py-40 bg-gradient-to-b from-[#FAF8F3] via-[#FCFAF6] to-[#F3F0E8] dark:from-[#060606] dark:via-[#090909] dark:to-[#060606] border-t border-neutral-200/45 dark:border-white/5 px-6 md:px-12 overflow-hidden transition-colors duration-500">
       
       {/* Editorial Decorative Background Details */}
       <div className="absolute inset-0 huge-grid-pattern opacity-10 pointer-events-none" />
@@ -389,30 +389,70 @@ export const BrandEcosystem: React.FC<{ onPlayDemo?: () => void }> = ({ onPlayDe
                   </div>
 
                   {/* Pillars/Features inside sub-brand */}
-                  <div className="space-y-4">
-                    <span className="font-mono text-[9px] tracking-widest text-zinc-400 uppercase font-bold block">
-                      CORE STRATEGIC PILLARS & DISCIPLINE
-                    </span>
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-[10px] tracking-[0.25em] text-[#FF1E27] uppercase font-black block">
+                        CORE STRATEGIC PILLARS & DISCIPLINE
+                      </span>
+                      <span className="text-[9px] font-mono text-zinc-400 hidden sm:inline-block">
+                        // SECURE OPERATIONAL VECTORS
+                      </span>
+                    </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 group/deck">
                       {activeBrand.pillars.map((pil, idx) => (
-                        <div 
+                        <motion.div 
                           key={idx}
-                          className="bg-zinc-50/60 hover:bg-zinc-50 border border-zinc-150 p-4 rounded-xl space-y-1 transition-all group"
+                          initial={{ opacity: 0, y: 15 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.4, delay: idx * 0.08 }}
+                          whileHover={{ 
+                            scale: 1.025, 
+                            y: -4,
+                            zIndex: 10,
+                            boxShadow: "0 20px 40px -15px rgba(18, 18, 16, 0.08)"
+                          }}
+                          className="relative overflow-hidden bg-white hover:bg-neutral-50/20 border border-neutral-200/60 dark:border-white/10 p-5 rounded-2xl flex flex-col justify-between transition-all duration-350 group/item cursor-pointer min-h-[140px] group-hover/deck:opacity-60 hover:!opacity-100"
                         >
-                          <div className="flex items-center gap-2">
-                            <span 
-                              className="w-1.5 h-1.5 rounded-full" 
-                              style={{ backgroundColor: activeBrand.color }}
-                            />
-                            <h4 className="font-serif italic text-[14.5px] text-zinc-900 group-hover:text-[#FF1E27] transition-colors">
+                          {/* Top accent glow layout */}
+                          <div 
+                            className="absolute left-0 top-0 bottom-0 w-[4px] rounded-l-2xl opacity-60 group-hover/item:opacity-100 group-hover/item:w-[6px] transition-all duration-300"
+                            style={{ backgroundColor: activeBrand.color }}
+                          />
+
+                          {/* Dynamic Watermark Background Grid */}
+                          <div className="absolute inset-0 opacity-[0.015] group-hover/item:opacity-[0.045] pointer-events-none transition-opacity duration-300 bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:12px_12px] dark:bg-[radial-gradient(#fff_1px,transparent_1px)]" />
+
+                          {/* Giant luxury watermark index in matching sub-brand color */}
+                          <div 
+                            className="absolute right-4 top-1 text-[4rem] font-mono font-black select-none pointer-events-none leading-none opacity-[0.05] group-hover/item:opacity-[0.12] transition-opacity duration-500 italic"
+                            style={{ color: activeBrand.color }}
+                          >
+                            0{idx + 1}
+                          </div>
+
+                          <div className="space-y-2 relative z-10">
+                            {/* Technical Meta Tag */}
+                            <div className="flex items-center gap-1.5">
+                              <span 
+                                className="text-[8.5px] font-mono tracking-[0.15em] uppercase font-bold"
+                                style={{ color: activeBrand.color }}
+                              >
+                                {activeBrand.title.toUpperCase().slice(0, 10)} // 0{idx + 1}
+                              </span>
+                            </div>
+
+                            {/* Core Title */}
+                            <h4 className="font-serif italic text-[16px] text-zinc-900 dark:text-neutral-100 group-hover/item:text-[#FF1E27] font-semibold tracking-tight transition-colors flex items-center gap-2">
                               {pil.title}
                             </h4>
                           </div>
-                          <p className="text-zinc-500 text-xs leading-relaxed font-sans font-light pl-3.5">
+
+                          {/* Operational Description */}
+                          <p className="text-zinc-500 dark:text-zinc-400 text-xs leading-relaxed font-sans font-light pl-0 pt-2.5 border-t border-dashed border-neutral-200/50 dark:border-white/5 relative z-10">
                             {pil.desc}
                           </p>
-                        </div>
+                        </motion.div>
                       ))}
                     </div>
                   </div>

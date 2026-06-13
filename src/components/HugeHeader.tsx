@@ -45,13 +45,6 @@ export const HugeHeader: React.FC<HeaderProps> = ({
     },
     {
       num: "04",
-      label: "JOURNAL & VLOGS",
-      desc: "Immersive community log: read ancient storytelling analyses and stream our vlogs.",
-      id: "media-hub",
-      icon: <BookOpen className="w-5 h-5 text-brand" />,
-    },
-    {
-      num: "05",
       label: "CONNECT",
       desc: "Let's build something beautiful. Our team is responsive and ready.",
       id: "connect",

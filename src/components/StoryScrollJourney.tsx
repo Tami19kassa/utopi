@@ -70,7 +70,7 @@ export const StoryScrollJourney: React.FC<{ onPlayDemo: () => void }> = ({ onPla
     <section 
       ref={containerRef}
       id="story-journey" 
-      className="relative py-28 md:py-40 bg-white border-t border-rose-100 px-6 md:px-12 overflow-hidden"
+      className="relative py-28 md:py-40 bg-gradient-to-b from-[#F2EFE7] via-[#FCFAF6] to-[#FAF8F3] dark:from-[#090909] dark:via-[#060606] dark:to-[#080808] border-t border-neutral-200/40 dark:border-white/5 px-6 md:px-12 overflow-hidden"
     >
       {/* Editorial Watermark & Grid Background */}
       <div className="absolute inset-0 huge-grid-pattern opacity-10 pointer-events-none" />

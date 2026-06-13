@@ -17,15 +17,15 @@
 
 @layer base {
   :root {
-    --theme-bg: #ffffff;
-    --theme-bg-secondary: #fafafa;
-    --theme-text-primary: #0d0d0d;
-    --theme-text-secondary: #404040; /* neutral-800 */
-    --theme-text-tertiary: #737373; /* neutral-500 */
-    --theme-text-quaternary: #a3a3a3; /* neutral-400 */
-    --theme-border: #f5f5f5; /* neutral-100 */
-    --theme-border-medium: #e5e5e5; /* neutral-200 */
-    --theme-border-rose: #ffe4e6; /* rose-100 */
+    --theme-bg: #FCFAF6;
+    --theme-bg-secondary: #F5F3EC;
+    --theme-text-primary: #121210;
+    --theme-text-secondary: #3A3A35; /* neutral-800 */
+    --theme-text-tertiary: #6B6B60; /* neutral-500 */
+    --theme-text-quaternary: #98988B; /* neutral-400 */
+    --theme-border: #EFECE3; /* neutral-100 */
+    --theme-border-medium: #E3DEC2; /* neutral-200 */
+    --theme-border-rose: #F5CECF; /* rose-100 */
   }
 
   .dark {
@@ -51,6 +51,13 @@
   /* Transition for dynamic changes */
   .bg-white, .bg-\[\#fafafa\], .bg-\[\#fafafa\]\/90, .bg-\[\#fafafa\]\/80, .bg-neutral-50, .bg-neutral-100, .text-neutral-900, .text-neutral-800, .text-neutral-700, .text-neutral-600, .text-neutral-500, .text-neutral-400, .border-neutral-200, .border-neutral-100, .border-rose-100, .huge-grid-pattern {
     transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-image 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Overrides for light-theme cards so they look warm, tactile, and physically tangible, avoiding flat slides */
+  body:not(.dark) .bg-white {
+    background-color: #FDFDFC !important;
+    border-color: #E8E5DC !important;
+    box-shadow: 0 16px 40px -12px rgba(36, 36, 32, 0.05), 0 2px 5px -1px rgba(36, 36, 32, 0.02) !important;
   }
 
   .dark .bg-white {

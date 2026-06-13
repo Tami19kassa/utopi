@@ -189,7 +189,7 @@ export default function App() {
   // Setup auto-updating IntersectionObserver to trace active navigation sections on-scroll
   useEffect(() => {
     if (isBooting) return;
-    const sections = ["home", "journey", "brand-ecosystem", "enqoq-cash", "studio", "media-hub", "connect"];
+    const sections = ["home", "journey", "brand-ecosystem", "enqoq-cash", "studio", "connect"];
     const activeObservers = sections.map((id) => {
       const el = document.getElementById(id);
       if (!el) return null;
@@ -219,7 +219,7 @@ export default function App() {
   };
 
   return (
-    <div className="relative min-h-screen bg-white text-neutral-900 overflow-x-hidden font-sans">
+    <div className="relative min-h-screen bg-[#FCFAF6] text-neutral-900 dark:bg-[#060606] dark:text-neutral-100 overflow-x-hidden font-sans transition-colors duration-500">
       
       {/* High-Performance Top Viewport Scroll Progress Bar */}
       <motion.div
@@ -554,7 +554,7 @@ export default function App() {
 
           <motion.section 
             id="journey" 
-            className="w-full relative bg-[#F7F7F7] dark:bg-[#090909] transition-colors duration-500"
+            className="w-full relative"
             style={{ transformStyle: "preserve-3d" }}
             initial={{ opacity: 0, rotateX: 8, y: 50, scale: 0.97, transformPerspective: 1200 }}
             whileInView={{ opacity: 1, rotateX: 0, y: 0, scale: 1, transformPerspective: 1200 }}
@@ -600,20 +600,7 @@ export default function App() {
             <StudioShowcase onPlayDemo={() => handleNavigate("enqoq-cash")} />
           </motion.section>
 
-          <motion.section 
-            id="media-hub" 
-            className="w-full relative"
-            style={{ transformStyle: "preserve-3d" }}
-            initial={{ opacity: 0, rotateX: 8, y: 50, scale: 0.97, transformPerspective: 1200 }}
-            whileInView={{ opacity: 1, rotateX: 0, y: 0, scale: 1, transformPerspective: 1200 }}
-            viewport={{ once: true, amount: 0.03, margin: "-8% 0px" }}
-            transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <MediaHub 
-              items={mediaItems} 
-              onLike={handleLikeItem} 
-            />
-          </motion.section>
+
 
           <motion.section 
             id="connect" 

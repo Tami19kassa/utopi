@@ -119,7 +119,7 @@ export const HugeHero: React.FC<HeroProps> = ({
   return (
     <div
       ref={containerRef}
-      className="relative min-h-screen bg-white dark:bg-[#060606] overflow-hidden flex flex-col justify-center pt-32 pb-20 px-4 sm:px-6 md:px-12 transition-colors duration-500"
+      className="relative min-h-screen bg-gradient-to-br from-[#FCFAF6] via-[#FAF8F3] to-[#F1EDE5] dark:from-[#060606] dark:via-[#080808] dark:to-[#0C0C0C] overflow-hidden flex flex-col justify-center pt-32 pb-20 px-4 sm:px-6 md:px-12 transition-colors duration-500"
     >
       {/* 1. ARCHITECTURAL BOUNDARY CORNER DECORATIONS */}
       <div className="absolute top-24 left-4 md:left-12 pointer-events-none select-none hidden sm:flex items-center gap-2 font-mono text-[9px] text-neutral-300 dark:text-white/10 z-20">

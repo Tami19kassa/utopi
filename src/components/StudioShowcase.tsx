@@ -51,26 +51,34 @@ export const StudioShowcase: React.FC<StudioShowcaseProps> = ({ onPlayDemo }) =>
     {
       title: "Brand Systems & Strategy",
       desc: "Logo engineering, design guidelines, corporate values direction, and market research.",
+      icon: Compass,
+      topic: "STRATEGY VECTOR",
     },
     {
       title: "Interactive Web Engineering",
       desc: "Custom React modules, highly-responsive state triggers, elegant game mechanics, and digital visibility.",
+      icon: Monitor,
+      topic: "DIGITAL CORE",
     },
     {
       title: "Cultural Content Synthesis",
       desc: "Blending traditional Amharic narratives, general knowledge trivia, and Ge'ez patterns with global aesthetics.",
+      icon: Shield,
+      topic: "SYNTHESIS LAB",
     },
     {
       title: "Multimedia Production",
       desc: "Full-scale cinematic compositions, sonic synthesis, motion graphic streams, and immersive media.",
+      icon: Volume2,
+      topic: "CREATIVE PRODUCTION",
     },
   ];
 
   return (
-    <section id="studio" className="relative py-24 md:py-32 bg-[#fafafa] border-t border-rose-100 px-6 md:px-12 overflow-hidden">
+    <section id="studio" className="relative py-24 md:py-32 bg-gradient-to-b from-[#FCFAF6] via-[#F6F4EB] to-[#FAF8F3] dark:from-[#060606] dark:via-[#090909] dark:to-[#060606] border-t border-neutral-200/40 dark:border-white/5 px-6 md:px-12 overflow-hidden transition-colors duration-500">
       <div className="max-w-7xl mx-auto space-y-20 relative z-10">
         {/* Typographic Intro */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end border-b border-neutral-200 pb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end border-b border-neutral-200/40 dark:border-white/10 pb-12">
           <div className="lg:col-span-6 space-y-4">
             <span className="font-mono text-xs tracking-widest text-[#FF1E27] font-semibold">
               03 / CAPABILITIES & WORK
@@ -181,12 +189,12 @@ export const StudioShowcase: React.FC<StudioShowcaseProps> = ({ onPlayDemo }) =>
         </motion.div>
 
         {/* Brand pillars section: Clean grid blocks */}
-        <div className="pt-16 border-t border-neutral-200 space-y-12">
+        <div className="pt-16 border-t border-neutral-200/40 dark:border-white/10 space-y-12">
           <div className="max-w-md">
             <span className="font-mono text-xs tracking-widest text-brand font-semibold">
               OUR DEVELOPMENT FRAMEWORK
             </span>
-            <h3 className="font-serif italic text-3xl text-neutral-900 tracking-tight pt-1">
+            <h3 className="font-serif italic text-3xl text-neutral-900 dark:text-neutral-100 tracking-tight pt-1">
               The YouTobia Principles
             </h3>
           </div>
@@ -207,32 +215,65 @@ export const StudioShowcase: React.FC<StudioShowcaseProps> = ({ onPlayDemo }) =>
             }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
           >
-            {featuresList.map((f, i) => (
-              <motion.div
-                key={i}
-                variants={{
-                  hidden: { opacity: 0, y: 30 },
-                  visible: { 
-                    opacity: 1, 
-                    y: 0, 
-                    transition: { type: "spring", stiffness: 90, damping: 14 } 
-                  }
-                }}
-                whileHover={{ y: -6 }}
-                className="bg-white border border-neutral-200 p-6 rounded-xl hover:border-brand/40 hover:shadow-lg transition-all duration-300 space-y-4 relative group dark:bg-black/45 dark:border-white/5"
-              >
-                <div className="absolute top-0 left-0 w-0.5 h-0 bg-brand group-hover:h-full transition-all duration-300" />
-                <div className="w-10 h-10 bg-[#FF1E27]/5 border border-[#FF1E27]/20 rounded-lg flex items-center justify-center text-[#FF1E27] font-mono font-bold text-xs">
-                  0{i + 1}
-                </div>
-                <h4 className="font-serif italic text-lg text-neutral-800">
-                  {f.title}
-                </h4>
-                <p className="text-xs text-neutral-500 leading-relaxed font-sans font-light">
-                  {f.desc}
-                </p>
-              </motion.div>
-            ))}
+            {featuresList.map((f, i) => {
+              const Icon = f.icon;
+              return (
+                <motion.div
+                  key={i}
+                  variants={{
+                    hidden: { opacity: 0, y: 35, scale: 0.98 },
+                    visible: { 
+                      opacity: 1, 
+                      y: 0, 
+                      scale: 1, 
+                      transition: { type: "spring", stiffness: 100, damping: 15 } 
+                    }
+                  }}
+                  whileHover={{ 
+                    y: -10,
+                    scale: 1.03,
+                    boxShadow: "0 30px 60px -15px rgba(255, 30, 39, 0.08), 0 4px 12px -2px rgba(18, 18, 16, 0.03)"
+                  }}
+                  className="relative overflow-hidden p-6 md:p-8 rounded-2xl border border-neutral-200/50 dark:border-white/[0.06] bg-white dark:bg-[#0C0C0C] hover:border-[#FF1E27]/30 dark:hover:border-[#FF1E27]/40 transition-all duration-500 space-y-6 group cursor-pointer"
+                >
+                  {/* Subtle red line top highlight that expands on hover */}
+                  <div className="absolute top-0 inset-x-0 h-[2px] bg-neutral-200/50 dark:bg-neutral-800 group-hover:bg-[#FF1E27] transition-colors duration-300" />
+                  
+                  {/* Watermark index */}
+                  <div className="absolute right-4 bottom-2 text-7xl font-sans font-black select-none pointer-events-none opacity-[0.02] dark:opacity-[0.04] group-hover:opacity-[0.07] dark:group-hover:opacity-[0.11] transition-opacity duration-300 italic group-hover:-translate-y-1 transform transition-transform duration-500 font-display">
+                    0{i + 1}
+                  </div>
+
+                  {/* Top bar with morphing icon and metadata indicator */}
+                  <div className="flex items-center justify-between">
+                    <div className="w-11 h-11 rounded-xl bg-[#FF1E27]/[0.03] dark:bg-[#FF1E27]/10 flex items-center justify-center text-[#FF1E27] transition-all duration-300 group-hover:bg-[#FF1E27] group-hover:text-white group-hover:scale-110 shadow-sm border border-[#FF1E27]/10">
+                      <Icon className="w-5 h-5 transition-transform duration-500 group-hover:rotate-12" />
+                    </div>
+                    <span className="font-mono text-[9px] tracking-widest text-[#FF1E27] dark:text-red-400 font-bold bg-[#FF1E27]/[0.04] dark:bg-[#FF1E27]/15 px-2.5 py-1 rounded-sm border border-[#FF1E27]/10">
+                      // DIRECTIVE: 0{i + 1}
+                    </span>
+                  </div>
+
+                  {/* Title & Topic Meta */}
+                  <div className="space-y-2 relative z-10">
+                    <span className="text-[8px] font-mono tracking-[0.2em] text-neutral-400 dark:text-neutral-500 uppercase block">
+                      {f.topic}
+                    </span>
+                    <h4 className="font-serif italic text-lg md:text-xl text-neutral-900 dark:text-neutral-100 group-hover:text-[#FF1E27] transition-colors font-semibold leading-snug tracking-tight">
+                      {f.title}
+                    </h4>
+                  </div>
+
+                  {/* Separation line */}
+                  <div className="w-full h-[1px] bg-neutral-200/50 dark:bg-neutral-800/30 border-dashed border-t" />
+
+                  {/* Description */}
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed font-sans font-light relative z-10">
+                    {f.desc}
+                  </p>
+                </motion.div>
+              );
+            })}
           </motion.div>
         </div>
 
