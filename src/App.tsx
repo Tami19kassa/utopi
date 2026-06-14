@@ -425,13 +425,12 @@ export default function App() {
           </motion.section>
 
           <motion.section
-            id="brand-ecosystem" 
+            id="brand-ecosystem"
             className="w-full relative"
-            style={{ transformStyle: "preserve-3d" }}
-            initial={{ opacity: 0, rotateX: -8, y: 50, scale: 0.97, transformPerspective: 1200 }}
-            whileInView={{ opacity: 1, rotateX: 0, y: 0, scale: 1, transformPerspective: 1200 }}
-            viewport={{ once: true, amount: 0.03, margin: "-8% 0px" }}
-            transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true, amount: 0.01 }}
+            transition={{ duration: 0.6 }}
           >
             <BrandEcosystem onPlayDemo={() => handleNavigate("enqoq-cash")} />
           </motion.section>

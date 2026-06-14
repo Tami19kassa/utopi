@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useLayoutEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { StaggeredLetters } from "./StaggeredLetterReveal";
 import { 
   Sparkles, 
@@ -34,6 +36,200 @@ interface SubBrand {
     desc: string;
   }[];
 }
+
+gsap.registerPlugin(ScrollTrigger);
+
+// ─── Horizontal-scroll block for parentValues ─────────────────────────────────
+// ─── Card icons mapped by index ───────────────────────────────────────────────
+import {
+  Rocket, Palette, Users as UsersIcon, ShieldCheck, Globe as GlobeIcon,
+} from "lucide-react";
+
+const VALUE_ICONS = [
+  <Rocket className="w-5 h-5" />,
+  <Palette className="w-5 h-5" />,
+  <UsersIcon className="w-5 h-5" />,
+  <ShieldCheck className="w-5 h-5" />,
+  <GlobeIcon className="w-5 h-5" />,
+];
+
+// ─── Pinned right-to-left 3D card sweep ───────────────────────────────────────
+const ValuesHorizontalScroll: React.FC<{
+  values: Array<{ title: string; desc: string; bg: string; border: string; icon: React.ReactNode; }>
+}> = ({ values }) => {
+  const pinRef  = useRef<HTMLDivElement>(null); // pinned wrapper — GSAP pins this
+  const trackRef = useRef<HTMLDivElement>(null); // the moving row of cards
+
+  useLayoutEffect(() => {
+    const pin   = pinRef.current;
+    const track = trackRef.current;
+    if (!pin || !track) return;
+
+    // ── Initial 3D state: cards start rotated + shadowed ──────────────────────
+    const cardEls = track.querySelectorAll<HTMLElement>(".val-card");
+    gsap.set(track, { xPercent: 60 });                // rail starts shifted right
+    gsap.set(cardEls, {
+      rotateY: 18,
+      opacity: 0.4,
+      transformPerspective: 1000,
+    });
+
+    const ctx = gsap.context(() => {
+      const totalCards  = values.length;
+      // sweep the track from its starting xPercent to 0
+      // extra overshoot so the last card rests centred
+      const endXPercent = -(100 * (totalCards - 1)) / totalCards;
+
+      const tl = gsap.timeline();
+
+      // 1. Rail sweeps left — the main horizontal travel
+      tl.to(track, {
+        xPercent: endXPercent,
+        ease: "none",
+        duration: totalCards,
+      }, 0);
+
+      // 2. Cards un-rotate and fade in, staggered so each finishes before next starts
+      tl.to(cardEls, {
+        rotateY: 0,
+        opacity: 1,
+        duration: 1,
+        ease: "power3.out",
+        stagger: 1,
+      }, 0);
+
+      ScrollTrigger.create({
+        trigger:     pin,
+        start:       "top top",
+        end:         () => `+=${window.innerHeight * (totalCards + 0.5)}`,
+        pin:         true,          // locks viewport — nothing below bleeds up
+        scrub:       1,
+        animation:   tl,
+        anticipatePin: 1,
+      });
+    }, pin);
+
+    return () => ctx.revert();
+  }, [values.length]);
+
+  const CARD_W = "clamp(280px, 30vw, 380px)";
+
+  return (
+    /* pinRef is what GSAP pins — must have no CSS transform on any ancestor */
+    <div
+      ref={pinRef}
+      style={{
+        width: "100%",
+        height: "100vh",
+        overflow: "hidden",
+        position: "relative",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+      }}
+    >
+      {/* Section label */}
+      <div className="px-8 md:px-16 mb-8 flex-shrink-0">
+        <span className="font-mono text-[10px] tracking-widest text-[#FF1E27] font-bold uppercase">
+          HOLDING QUALITY PILLARS // SCROLL TO EXPLORE →
+        </span>
+      </div>
+
+      {/* Perspective wrapper around the moving track */}
+      <div style={{ perspective: 1000, perspectiveOrigin: "50% 50%", overflow: "hidden" }}>
+        {/* Moving rail */}
+        <div
+          ref={trackRef}
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            flexWrap: "nowrap",
+            gap: 20,
+            paddingLeft: "8vw",
+            paddingRight: "8vw",
+            paddingBottom: "5rem",   // breathing room before next section
+            willChange: "transform",
+            alignItems: "stretch",
+          }}
+        >
+          {values.map((val, i) => (
+            <div
+              key={val.title}
+              className="val-card flex-shrink-0 flex flex-col relative rounded-2xl overflow-hidden"
+              style={{
+                width: CARD_W,
+                minHeight: 340,
+                background: "white",
+                border: "1px solid rgba(229,9,20,0.12)",
+                // Premium 3D directional shadow — brand red undertone
+                boxShadow:
+                  "0 25px 50px -12px rgba(229,9,20,0.18), 0 8px 24px -4px rgba(0,0,0,0.12)",
+                transformStyle: "preserve-3d",
+              }}
+            >
+              {/* Top accent bar */}
+              <div
+                className="h-1 w-full flex-shrink-0"
+                style={{ background: "linear-gradient(90deg,#FF1E27,#ff6b6b)" }}
+              />
+
+              <div className="flex flex-col flex-1 p-8 space-y-5">
+                {/* Icon frame */}
+                <div
+                  className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{
+                    background: "rgba(229,9,20,0.08)",
+                    border: "1px solid rgba(229,9,20,0.18)",
+                    color: "#FF1E27",
+                  }}
+                >
+                  {VALUE_ICONS[i] ?? val.icon}
+                </div>
+
+                {/* Title */}
+                <h4
+                  className="font-serif italic tracking-tight text-neutral-900 leading-tight"
+                  style={{ fontSize: "clamp(1.4rem, 2.5vw, 2rem)" }}
+                >
+                  {val.title}
+                </h4>
+
+                {/* Divider */}
+                <div className="w-8 h-px" style={{ background: "#FF1E27" }} />
+
+                {/* Description */}
+                <p className="text-neutral-500 text-sm leading-relaxed font-light flex-1">
+                  {val.desc}
+                </p>
+
+                {/* Bottom serial */}
+                <span
+                  className="font-mono text-[9px] tracking-widest uppercase self-start mt-auto"
+                  style={{ color: "rgba(229,9,20,0.4)" }}
+                >
+                  VALUE.{String(i + 1).padStart(2, "0")}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Progress pill dots */}
+      <div
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2.5 z-10 pointer-events-none"
+      >
+        {values.map((_, i) => (
+          <div
+            key={i}
+            className="h-1.5 rounded-full bg-[#FF1E27]/30"
+            style={{ width: 24 }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
 
 export const BrandEcosystem: React.FC<{ onPlayDemo?: () => void }> = ({ onPlayDemo }) => {
   const [activeBrandId, setActiveBrandId] = useState<string>("enqoq");
@@ -174,7 +370,7 @@ export const BrandEcosystem: React.FC<{ onPlayDemo?: () => void }> = ({ onPlayDe
   const activeBrand = subBrands.find(b => b.id === activeBrandId) || subBrands[0];
 
   return (
-    <section id="brand-ecosystem" className="relative py-28 md:py-40 bg-gradient-to-b from-[#FAF8F3] via-[#FCFAF6] to-[#F3F0E8] dark:from-[#060606] dark:via-[#090909] dark:to-[#060606] border-t border-neutral-200/45 dark:border-white/5 px-6 md:px-12 overflow-hidden transition-colors duration-500">
+    <section id="brand-ecosystem" className="relative py-28 md:py-40 bg-linear-to-b from-[#FAF8F3] via-[#FCFAF6] to-[#F3F0E8] dark:from-[#060606] dark:via-[#090909] dark:to-[#060606] border-t border-neutral-200/45 dark:border-white/5 transition-colors duration-500">
       
       {/* Editorial Decorative Background Details */}
       <div className="absolute inset-0 huge-grid-pattern opacity-10 pointer-events-none" />
@@ -182,7 +378,7 @@ export const BrandEcosystem: React.FC<{ onPlayDemo?: () => void }> = ({ onPlayDe
         PLC
       </div>
 
-      <div className="max-w-7xl mx-auto space-y-32 relative z-10">
+      <div className="max-w-7xl mx-auto space-y-32 relative z-10 px-6 md:px-12">
         
         {/* PART 1: THE CONGLOMERATE HOLDING COMPANY */}
         <div className="space-y-16">
@@ -214,36 +410,19 @@ export const BrandEcosystem: React.FC<{ onPlayDemo?: () => void }> = ({ onPlayDe
             </div>
           </div>
 
-          {/* Holding Company Pillar Core Values Grid */}
-          <div className="space-y-6">
-            <div>
-              <span className="font-mono text-xs text-zinc-400 block tracking-widest">HOLDING QUALITY PILLARS</span>
-              <h3 className="font-serif italic text-2xl text-zinc-800">Our Core Unifying Values</h3>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
-              {parentValues.map((val, i) => (
-                <motion.div
-                  key={val.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: i * 0.1 }}
-                  whileHover={{ y: -6, boxShadow: "0 10px 30px rgba(255,30,39,0.05)" }}
-                  className={`${val.bg} border ${val.border} p-6 rounded-2xl flex flex-col justify-between min-h-[180px] transition-all`}
-                >
-                  <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-xs">
-                    {val.icon}
-                  </div>
-                  <div className="space-y-2 mt-4">
-                    <h4 className="font-serif italic text-lg text-neutral-900">{val.title}</h4>
-                    <p className="text-[11px] text-zinc-500 leading-relaxed font-sans font-light">{val.desc}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+          {/* Holding Company Pillar Core Values — horizontal scroll */}
+          <div className="space-y-4">
+            <span className="font-mono text-xs text-zinc-400 block tracking-widest">HOLDING QUALITY PILLARS</span>
+            <h3 className="font-serif italic text-2xl text-zinc-800">Our Core Unifying Values</h3>
           </div>
         </div>
+
+      </div>{/* close max-w-7xl */}
+
+      {/* GSAP-pinned horizontal scroll — full bleed, no container constraints */}
+      <ValuesHorizontalScroll values={parentValues} />
+
+      <div className="max-w-7xl mx-auto space-y-32 relative z-10 px-6 md:px-12">
 
         {/* PART 2: INTERACTIVE THE 5 SUB-BRANDS EXPLORER */}
         <div className="space-y-12">
