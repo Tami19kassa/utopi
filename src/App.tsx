@@ -4,7 +4,7 @@ import HugeHero from "./components/HugeHero";
 import StoryScrollJourney from "./components/StoryScrollJourney";
 import BrandEcosystem from "./components/BrandEcosystem";
 import EnqoqCashDemo from "./components/EnqoqCashDemo";
-import StudioShowcase from "./components/StudioShowcase";
+import StaffHierarchy from "./components/StaffHierarchy";
 import MediaHub from "./components/MediaHub";
 import HugeFooter from "./components/HugeFooter";
 import CookieBanner from "./components/CookieBanner";
@@ -447,19 +447,10 @@ export default function App() {
             <EnqoqCashDemo onUpdateScore={handleUpdateScore} />
           </motion.section>
 
-          <motion.section 
-            id="studio" 
-            className="w-full relative"
-            style={{ transformStyle: "preserve-3d" }}
-            initial={{ opacity: 0, rotateX: -8, y: 50, scale: 0.97, transformPerspective: 1200 }}
-            whileInView={{ opacity: 1, rotateX: 0, y: 0, scale: 1, transformPerspective: 1200 }}
-            viewport={{ once: true, amount: 0.03, margin: "-8% 0px" }}
-            transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <StudioShowcase onPlayDemo={() => handleNavigate("enqoq-cash")} />
-          </motion.section>
-
-
+          {/* Staff Hierarchy Tree */}
+          <section id="studio" className="w-full relative">
+            <StaffHierarchy />
+          </section>
 
           <motion.section 
             id="connect" 

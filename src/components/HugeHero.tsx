@@ -49,7 +49,7 @@ export const HugeHero: React.FC<HeroProps> = ({
   const navLinks = [
     { label: "Home", id: "home" },
     { label: "Brand Ecosystem", id: "brand-ecosystem" },
-    { label: "Studio & Works", id: "studio" },
+    { label: "Our Team", id: "studio" },
     { label: "Connect", id: "connect" },
   ];
 
@@ -356,7 +356,7 @@ export const HugeHero: React.FC<HeroProps> = ({
               </span>
               <span className="uppercase tracking-widest hidden sm:inline">YOUTOBIA NETWORKS // LIVE</span>
               <button onClick={() => onNavigate("studio")} className="flex items-center gap-1 hover:text-[#FF1E27] cursor-pointer font-bold tracking-widest text-[#FF1E27]/60 transition-colors group">
-                STUDIO
+                OUR TEAM
                 <ArrowDown className="w-3 h-3 animate-bounce" />
               </button>
             </div>
