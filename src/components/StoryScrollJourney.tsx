@@ -1,383 +1,537 @@
-import React, { useRef } from "react";
-import { motion, useScroll, useTransform, AnimatePresence } from "motion/react";
-import { StaggeredLetters } from "./StaggeredLetterReveal";
-import { HelpCircle, ChevronRight, Activity, Cpu, Award, MessageCircle, Coins, ShieldCheck, Play, Tv, GraduationCap, BookOpen, Sparkles } from "lucide-react";
+import React, { useRef, useLayoutEffect, useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import {
+  ChevronRight, Play, Tv, GraduationCap, BookOpen, Sparkles, Coins,
+} from "lucide-react";
 
-interface StoryStep {
-  id: string;
-  num: string;
-  title: string;
-  subtitle: string;
-  desc: string;
-  icon: React.ReactNode;
-  badge: string;
-}
+gsap.registerPlugin(ScrollTrigger);
+
+// ─── Panel data ────────────────────────────────────────────────────────────────
+const PANELS = [
+  {
+    num: "01",
+    badge: "CHAPTER I",
+    title: "eTop & ቀናView",
+    subtitle: "Create & Distribute",
+    desc: "Our production division eTop crafts bold, original, sustainable content, while ቀናView serves as our advanced digital distribution network for high-resolution content playback globally.",
+    Icon: Tv,
+    bg: "#0a0a0a",
+    rightBg: "#161616",
+    accent: "#FF1E27",
+    textColor: "#ffffff",
+    tag: "STREAMING · PRODUCTION",
+  },
+  {
+    num: "02",
+    badge: "CHAPTER II",
+    title: "የንታBarsiisaa",
+    subtitle: "Learn & Empower",
+    desc: "An inclusive educational academy equipping aspiring and seasoned creators with tools for media arts, visual engineering, and sound synthesis — career-defining lifelong learning.",
+    Icon: GraduationCap,
+    bg: "#ffffff",
+    rightBg: "#f0f0f0",
+    accent: "#FF1E27",
+    textColor: "#111111",
+    tag: "EDUCATION · SKILLS",
+  },
+  {
+    num: "03",
+    badge: "CHAPTER III",
+    title: "ምርXog",
+    subtitle: "Discover & Inform",
+    desc: "The go-to reference source for up-to-date multimedia trend tracking, analysis, and insights — delivering vetted information to businesses, creators, and enthusiasts.",
+    Icon: BookOpen,
+    bg: "#FF1E27",
+    rightBg: "#e0181f",
+    accent: "#ffffff",
+    textColor: "#ffffff",
+    tag: "JOURNALISM · ANALYTICS",
+  },
+  {
+    num: "04",
+    badge: "CHAPTER IV",
+    title: "እንቆቅCash",
+    subtitle: "Gamify & Connect",
+    desc: "Adapting Enqoqlsh riddles into a cutting-edge web trivia engine. Players challenge their knowledge, answer against rapid clocks, and unlock structural prizes on a regulated rewards ledger.",
+    Icon: Sparkles,
+    bg: "#0a0a0a",
+    rightBg: "#161616",
+    accent: "#FF1E27",
+    textColor: "#ffffff",
+    tag: "GAME · REWARDS",
+  },
+];
+
+const N = PANELS.length;
 
 export const StoryScrollJourney: React.FC<{ onPlayDemo: () => void }> = ({ onPlayDemo }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  
-  // Track scroll within this storytelling section
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"]
-  });
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [activeIdx, setActiveIdx] = useState(0);
 
-  // Transform lines or graphics based on scroll
-  const progressHeight = useTransform(scrollYProgress, [0, 0.8], ["0%", "100%"]);
-  const pulseScale = useTransform(scrollYProgress, [0.2, 0.5, 0.8], [0.95, 1.05, 0.95]);
-  const glowOpacity = useTransform(scrollYProgress, [0.3, 0.6, 0.9], [0.1, 0.3, 0.1]);
+  useLayoutEffect(() => {
+    const section = sectionRef.current;
+    const track = trackRef.current;
+    if (!section || !track) return;
 
-  const steps: StoryStep[] = [
-    {
-      id: "step1",
-      num: "01",
-      title: "eTop & ቀናView Co-Engine",
-      subtitle: "STORYTELLING & STREAMING INFRASTRUCTURE",
-      desc: "Our production division, eTop, crafts bold, original, and sustainable content, while ቀናView serves as our advanced digital distribution network designed for high-resolution content playback globally.",
-      icon: <Tv className="w-6 h-6 text-[#FF1E27]" />,
-      badge: "CHAPTER I: CREATE & DISTRIBUTE"
-    },
-    {
-      id: "step2",
-      num: "02",
-      title: "የንታBarsiisaa Training Core",
-      subtitle: "MULTIMEDIA SKILLS & PROFESSIONAL EMPOWERMENT",
-      desc: "An inclusive educational academy equipping both aspiring and seasoned creators with tools for media arts, visual engineering, and sound synthesis, guaranteeing career-defining lifelong learning.",
-      icon: <GraduationCap className="w-6 h-6 text-[#FF1E27]" />,
-      badge: "CHAPTER II: LEARN & EMPOWER"
-    },
-    {
-      id: "step3",
-      num: "03",
-      title: "ምርXog Insight Service",
-      subtitle: "ACCURATE INDUSTRY NEWS & TRANPARENT ANALYTICS",
-      desc: "Our media news outlet is the go-to reference source for up-to-date multimedia trend tracking, analysis, and insights, delivering vetted information to businesses, creators, and enthusiasts.",
-      icon: <BookOpen className="w-6 h-6 text-[#FF1E27]" />,
-      badge: "CHAPTER III: DISCOVER & INFORM"
-    },
-    {
-      id: "step4",
-      num: "04",
-      title: "እንቆቅCash Gamified Network",
-      subtitle: "INTELLECT TRANSFORMS INTO UNIQUE REWARDS",
-      desc: "Adapting 'Enqoqlsh' riddles into a cutting-edge web trivia engine. Players challenge their knowledge, answer against rapid clocks, and unlock structural prizes on a regulated rewards ledger.",
-      icon: <Sparkles className="w-6 h-6 text-[#FF1E27]" />,
-      badge: "CHAPTER IV: GAMIFY & CONNECT"
-    }
-  ];
+    // Total horizontal distance = full track width minus one visible panel width
+    // Panel width = viewport minus horizontal padding on both sides (24px each = 48px total)
+    const H_PAD = 24; // px each side
+    const GAP = 16;   // gap between panels
+    const panelW = window.innerWidth - H_PAD * 2;
+    // Each step = one panel width + one gap
+    const totalScrollWidth = (panelW + GAP) * (N - 1);
+
+    const ctx = gsap.context(() => {
+      const tween = gsap.to(track, {
+        x: -totalScrollWidth,
+        ease: "none",
+      });
+
+      ScrollTrigger.create({
+        trigger: section,
+        start: "top top",
+        end: () => `+=${totalScrollWidth}`,
+        pin: true,
+        scrub: 1,
+        animation: tween,
+        anticipatePin: 1,
+        onUpdate: (self) => {
+          setActiveIdx(Math.min(N - 1, Math.floor(self.progress * N)));
+        },
+      });
+    }, section);
+
+    return () => ctx.revert();
+  }, []);
 
   return (
-    <section 
-      ref={containerRef}
-      id="story-journey" 
-      className="relative py-28 md:py-40 bg-gradient-to-b from-[#F2EFE7] via-[#FCFAF6] to-[#FAF8F3] dark:from-[#090909] dark:via-[#060606] dark:to-[#080808] border-t border-neutral-200/40 dark:border-white/5 px-6 md:px-12 overflow-hidden"
+    <section
+      id="story-journey"
+      className="relative bg-[#FCFAF6] dark:bg-[#060606] transition-colors"
     >
-      {/* Editorial Watermark & Grid Background */}
-      <div className="absolute inset-0 huge-grid-pattern opacity-10 pointer-events-none" />
-      <div className="absolute left-[2%] top-[25%] text-neutral-100/55 dark:text-neutral-900/50 font-display font-black text-[11rem] xl:text-[20rem] leading-none select-none pointer-events-none tracking-tighter uppercase">
-        HOLDINGS
-      </div>
-      <div className="absolute right-[2%] bottom-[15%] text-[#FF1E27]/[0.01] font-display font-black text-[11rem] xl:text-[20rem] leading-none select-none pointer-events-none tracking-tighter">
-        ECOSYSTEM
-      </div>
-
-      <div className="max-w-7xl mx-auto relative z-10">
-        
-        {/* Typographic Intro Statement - Animated text */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end border-b border-neutral-200 dark:border-white/10 pb-16 mb-24 transition-colors">
-          <div className="lg:col-span-7 space-y-4">
-            <motion.span 
-              initial={{ opacity: 0, x: -15 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="font-mono text-xs tracking-widest text-[#FF1E27] font-bold flex items-center gap-2"
+      {/* ── Static header — sits above the pinned zone ── */}
+      <div className="w-full px-8 sm:px-14 md:px-20 pt-20 pb-12 border-b border-neutral-200/40 dark:border-white/5">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="space-y-3">
+            <span className="font-mono text-[10px] tracking-widest text-[#FF1E27] font-bold flex items-center gap-2 uppercase">
+              <span className="w-2 h-2 rounded-full bg-[#FF1E27] animate-pulse" />
+              02 / The Ecosystem Engines
+            </span>
+            <h2
+              className="font-black tracking-tighter leading-[0.88] text-neutral-900 dark:text-white"
+              style={{ fontSize: "clamp(2.4rem, 6vw, 5.5rem)" }}
             >
-              <span className="w-2 h-2 bg-[#FF1E27] rounded-full animate-pulse" />
-              02 / THE ECOSYSTEM ENGINES
-            </motion.span>
-            <h2 className="font-serif italic text-4xl sm:text-6xl text-neutral-900 dark:text-white tracking-tight leading-none transition-colors">
-              <StaggeredLetters text="The Integrated" /> <br />
-              <span className="text-[#FF1E27] font-display font-black tracking-tighter uppercase not-italic">
-                <StaggeredLetters text="Holdings Journey" delay={0.25} />
-              </span>.
+              The Integrated<br />
+              <span className="text-[#FF1E27]">Holdings Journey.</span>
             </h2>
           </div>
-          <div className="lg:col-span-5">
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-neutral-600 dark:text-neutral-400 text-sm md:text-base font-sans leading-relaxed font-light transition-colors"
-            >
-              We bring together storytelling, global streaming feeds, interactive online portals, professional multimedia academies, and vetted news channels into one holistic, powerful network.
-            </motion.p>
-          </div>
+          <p className="text-neutral-500 dark:text-neutral-400 text-sm leading-relaxed max-w-sm font-light">
+            We unite storytelling, streaming, education, journalism, and
+            gamified engagement into one holistic network built from Addis Ababa.
+          </p>
         </div>
+      </div>
 
-        {/* Story Journey Grid (Timeline side-by-side with interactive visual state) */}
-        <div className="relative">
-          
-          {/* Centered timeline progress bar on Desktop (hidden on mobile) */}
-          <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-[1px] bg-neutral-200 -translate-x-[0.5px] pointer-events-none hidden md:block">
-            {/* Live animated active scrolling tracker trace */}
-            <motion.div 
-              className="absolute top-0 left-0 w-full bg-gradient-to-b from-[#FF1E27] to-[#ffd1d3] origin-top"
-              style={{ height: progressHeight }}
-            />
-          </div>
-
-          <div className="space-y-24 md:space-y-40">
-            {steps.map((step, idx) => {
-              const isEven = idx % 2 === 0;
-              return (
-                <div 
-                  key={step.id} 
-                  className={`grid grid-cols-1 md:grid-cols-12 gap-8 items-center relative ${isEven ? "" : "md:flex-row-reverse"}`}
+      {/* ── Pinned viewport — GSAP pins this to top, clamps overflow ── */}
+      <div
+        ref={sectionRef}
+        style={{
+          width: "100%",
+          height: "100vh",
+          overflow: "hidden",
+          position: "relative",
+          /* Vertical + horizontal breathing room around the panels */
+          padding: "20px 24px",
+          boxSizing: "border-box",
+        }}
+      >
+        {/* ── Horizontal track — N panels wide, GSAP moves this left ── */}
+        <div
+          ref={trackRef}
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            /* Each panel fills the padded inner width, not raw 100vw */
+            width: `calc(${N} * (100vw - 48px) + ${(N - 1) * 16}px)`,
+            height: "100%",
+            willChange: "transform",
+            gap: 16,
+          }}
+        >
+          {PANELS.map((panel, i) => {
+            const { Icon } = panel;
+            return (
+              <div
+                key={panel.num}
+                style={{
+                  width: "calc(100vw - 48px)",
+                  height: "100%",
+                  flexShrink: 0,
+                  display: "flex",
+                  flexDirection: "row",
+                  overflow: "hidden",
+                  position: "relative",
+                  background: panel.bg,
+                  borderRadius: 12,
+                  boxShadow: "0 8px 40px rgba(0,0,0,0.18)",
+                }}
+              >
+                {/* ── LEFT: text content ── */}
+                <div
+                  style={{
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    padding: "clamp(28px, 7vw, 88px)",
+                    position: "relative",
+                    overflow: "hidden",
+                  }}
                 >
-                  
-                  {/* Step Info segment */}
-                  <motion.div 
-                    className={`md:col-span-5 space-y-6 ${isEven ? "md:order-1" : "md:order-3 md:text-right md:items-end flex flex-col"}`}
-                    initial={{ opacity: 0, x: isEven ? -40 : 40 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true, margin: "-120px" }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
+                  {/* Watermark number */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      right: -10,
+                      bottom: -20,
+                      fontSize: "clamp(7rem, 22vw, 20rem)",
+                      fontWeight: 900,
+                      lineHeight: 1,
+                      color: panel.accent,
+                      opacity: 0.04,
+                      userSelect: "none",
+                      pointerEvents: "none",
+                    }}
                   >
-                    <span className="font-mono text-xs tracking-widest text-[#FF1E27] font-bold">
-                      {step.badge}
-                    </span>
-                    
-                    <div className="flex items-center gap-4 group">
-                      {isEven && (
-                        <div className="w-12 h-12 rounded-xl bg-[#FF1E27]/10 flex items-center justify-center shrink-0 border border-[#FF1E27]/20">
-                          {step.icon}
-                        </div>
-                      )}
-                      <div>
-                        <span className="font-mono text-[10px] text-neutral-400 block">SERIES {step.num}/04</span>
-                        <h3 className="font-serif italic text-2xl sm:text-3xl text-neutral-900 tracking-tight group-hover:text-[#FF1E27] transition-colors">
-                          {step.title}
-                        </h3>
-                      </div>
-                      {!isEven && (
-                        <div className="w-12 h-12 rounded-xl bg-[#FF1E27]/5 flex items-center justify-center shrink-0 border border-[#FF1E27]/20">
-                          {step.icon}
-                        </div>
-                      )}
-                    </div>
-
-                    <p className={`text-neutral-600 text-sm leading-relaxed font-sans font-light max-w-md ${!isEven ? "md:text-right" : ""}`}>
-                      {step.desc}
-                    </p>
-                  </motion.div>
-
-                  {/* Desktop Center Ticker Bead (Absolute timeline indicator block) */}
-                  <div className="md:col-span-2 flex justify-start md:justify-center md:order-2 z-10">
-                    <motion.div 
-                      className="w-10 h-10 rounded-full bg-white border-2 border-neutral-200 flex items-center justify-center text-neutral-800 font-mono text-xs font-bold hover:border-[#FF1E27] transition-colors relative"
-                      whileInView={{ scale: [0.8, 1.1, 1] }}
-                      viewport={{ once: true, margin: "-100px" }}
-                    >
-                      {step.num}
-                      <span className="absolute -inset-1 rounded-full border border-[#FF1E27]/30 animate-pulse" />
-                    </motion.div>
+                    {panel.num}
                   </div>
 
-                  {/* Interactive Dynamic Graphic Showcase representing each step in red and white with high-end 3D perspective */}
-                  <motion.div 
-                    className={`md:col-span-12 lg:col-span-5 ${isEven ? "md:order-3" : "md:order-1"}`}
-                    initial={{ opacity: 0, scale: 0.92, y: 35, rotateX: 6, rotateY: isEven ? 12 : -12 }}
-                    whileInView={{ opacity: 1, scale: 1, y: 0, rotateX: 0, rotateY: 0 }}
-                    whileHover={{ scale: 1.025, rotateY: isEven ? 3 : -3, rotateX: -2 }}
-                    viewport={{ once: true, margin: "-120px" }}
-                    transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
-                    style={{ transformStyle: "preserve-3d", perspective: "1000px" }}
+                  {/* Badge */}
+                  <div
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 8,
+                      marginBottom: 24,
+                      padding: "4px 12px",
+                      fontSize: 10,
+                      fontFamily: "monospace",
+                      letterSpacing: "0.2em",
+                      fontWeight: 700,
+                      textTransform: "uppercase" as const,
+                      color: panel.accent,
+                      border: `1px solid ${panel.accent}40`,
+                      background: `${panel.accent}12`,
+                      alignSelf: "flex-start",
+                    }}
                   >
-                    <div className="bg-[#fafafa]/80 border border-neutral-200 rounded-2xl p-6 md:p-8 relative overflow-hidden aspect-video flex flex-col justify-between group hover:border-[#FF1E27]/30 transition-all duration-500 shadow-md">
-                      
-                      {/* Grid background on inside cards too */}
-                      <div className="absolute inset-0 huge-grid-pattern opacity-10 pointer-events-none" />
-                      <div className="absolute top-0 left-0 w-2 h-full bg-[#FF1E27] scale-y-0 group-hover:scale-y-100 transition-transform duration-500 origin-top" />
+                    <span
+                      style={{
+                        width: 6,
+                        height: 6,
+                        borderRadius: "50%",
+                        background: panel.accent,
+                        flexShrink: 0,
+                      }}
+                    />
+                    {panel.badge} — YouTobia Holdings
+                  </div>
 
-                      {/* Header bar */}
-                      <div className="flex items-center justify-between border-b border-neutral-200 pb-3">
-                        <div className="flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-[#FF1E27] animate-pulse" />
-                          <span className="font-mono text-[9px] text-neutral-400 tracking-widest uppercase">
-                            ECOSYSTEM: SECTOR_{step.num}
-                          </span>
-                        </div>
-                        <span className="font-mono text-[9px] text-[#FF1E27] tracking-widest">
-                          [ YUTOBIA HOLDINGS ]
-                        </span>
-                      </div>
+                  {/* Title */}
+                  <h2
+                    style={{
+                      fontSize: "clamp(2.4rem, 6vw, 6.5rem)",
+                      fontWeight: 900,
+                      letterSpacing: "-0.03em",
+                      lineHeight: 0.92,
+                      color: panel.textColor,
+                      marginBottom: 14,
+                    }}
+                  >
+                    {panel.title}
+                  </h2>
 
-                      {/* CHAPTER 1 GRAPHIC: eTop & ቀናView Stream */}
-                      {step.id === "step1" && (
-                        <div className="my-auto flex flex-col justify-center space-y-3 w-full max-w-sm mx-auto">
-                          <div className="font-mono text-[9px] text-neutral-450 uppercase tracking-widest flex justify-between">
-                            <span>ቀናView STREAMING ACTIVE</span>
-                            <span>1080P PRO</span>
-                          </div>
-                          <div className="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-3 relative overflow-hidden aspect-video flex flex-col justify-between shadow-lg">
-                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,30,39,0.15),transparent_70%)]" />
-                            <div className="flex justify-between items-start z-10">
-                              <span className="bg-red-600 text-white font-mono text-[8px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider animate-pulse">
-                                eTop Production
-                              </span>
-                              <span className="text-[9px] font-mono text-zinc-400">Live ዐይናዊ Feed</span>
-                            </div>
-                            <div className="z-10 text-center space-y-1">
-                              <span className="text-white font-serif italic text-xs block">"Creative Storytelling Showcase"</span>
-                              <span className="text-[9px] text-zinc-400 font-light">Sub-brand 02 & 03 synced</span>
-                            </div>
-                            <div className="h-1 w-full bg-zinc-700 rounded-full overflow-hidden z-10">
-                              <div className="h-full w-2/3 bg-red-600 rounded-full" />
-                            </div>
-                          </div>
-                        </div>
-                      )}
+                  {/* Subtitle */}
+                  <p
+                    style={{
+                      fontFamily: "monospace",
+                      fontSize: 11,
+                      letterSpacing: "0.2em",
+                      textTransform: "uppercase" as const,
+                      color: panel.textColor,
+                      opacity: 0.5,
+                      marginBottom: 20,
+                    }}
+                  >
+                    {panel.subtitle}
+                  </p>
 
-                      {/* CHAPTER 2 GRAPHIC: YentaBarsiisaa Training Course */}
-                      {step.id === "step2" && (
-                        <div className="my-auto flex flex-col justify-center space-y-2 w-full max-w-sm mx-auto">
-                          <div className="text-[10px] uppercase font-mono tracking-wider font-bold text-[#FF1E27]">
-                            የንታBarsiisaa Syllabus Core
-                          </div>
-                          <div className="w-full bg-white dark:bg-neutral-900 p-2.5 rounded-lg border border-neutral-200 dark:border-white/5 text-xs font-mono flex items-center justify-between">
-                            <span className="text-neutral-700 dark:text-neutral-300">01. Visual Storytelling & VFX</span>
-                            <span className="text-[9px] text-zinc-400 font-bold uppercase select-none">Course Active</span>
-                          </div>
-                          <div className="w-full bg-white dark:bg-neutral-900 p-2.5 rounded-lg border border-neutral-200 dark:border-white/5 text-xs font-mono flex items-center justify-between">
-                            <span className="text-neutral-700 dark:text-neutral-300">02. Sound Design & Synth Synthesis</span>
-                            <span className="text-[9px] text-zinc-400 font-bold uppercase select-none">Course Active</span>
-                          </div>
-                          <div className="w-full bg-white dark:bg-neutral-900 p-2.5 rounded-lg border border-neutral-200 dark:border-white/5 text-xs font-mono flex items-center justify-between">
-                            <span className="text-neutral-700 dark:text-neutral-300">03. Interactive Frontend Crafts</span>
-                            <span className="text-[9px] text-[#FF1E27] font-semibold uppercase animate-pulse">Enroll Open</span>
-                          </div>
-                        </div>
-                      )}
+                  {/* Description */}
+                  <p
+                    style={{
+                      fontSize: "clamp(0.85rem, 1.3vw, 1rem)",
+                      lineHeight: 1.72,
+                      color: panel.textColor,
+                      opacity: 0.7,
+                      maxWidth: 440,
+                      marginBottom: 28,
+                      fontWeight: 300,
+                    }}
+                  >
+                    {panel.desc}
+                  </p>
 
-                      {/* CHAPTER 3 GRAPHIC: MirXog news feed */}
-                      {step.id === "step3" && (
-                        <div className="my-auto flex flex-col justify-center space-y-2 w-full max-w-sm mx-auto font-mono">
-                          <div className="text-[10px] uppercase font-mono tracking-wider font-bold text-[#FF1E27] flex items-center justify-between">
-                            <span>ምርXog BROADCAST NEWS FEED</span>
-                            <span className="flex items-center gap-1">
-                              <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-ping" />
-                              Synced
-                            </span>
-                          </div>
-                          <div className="bg-white dark:bg-neutral-900 p-3 rounded-xl border border-neutral-200 dark:border-white/5 space-y-2 relative shadow-xs">
-                            <div className="text-[11px] font-bold text-zinc-800 dark:text-zinc-200 font-serif leading-tight">
-                              "How Ethiopia's Multimedia Industry is Scaling with New Interactive Models"
-                            </div>
-                            <div className="flex justify-between text-[9px] font-mono text-zinc-400">
-                              <span>AUTHOR: YouTobia Desk</span>
-                              <span>READ TIME: 3 min</span>
-                            </div>
-                            <div className="border-t border-zinc-100 dark:border-zinc-800 pt-1 flex justify-between text-[8px] font-mono text-zinc-400 uppercase">
-                              <span>Vetted Verification</span>
-                              <span className="text-green-600 font-bold">Verified Vetted</span>
-                            </div>
-                          </div>
-                        </div>
-                      )}
+                  {/* Tags */}
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" as const, marginBottom: 28 }}>
+                    {panel.tag.split(" · ").map((t) => (
+                      <span
+                        key={t}
+                        style={{
+                          fontSize: 10,
+                          fontFamily: "monospace",
+                          letterSpacing: "0.2em",
+                          padding: "4px 12px",
+                          textTransform: "uppercase" as const,
+                          fontWeight: 700,
+                          color: panel.accent,
+                          background: `${panel.accent}14`,
+                          border: `1px solid ${panel.accent}35`,
+                        }}
+                      >
+                        {t}
+                      </span>
+                    ))}
+                  </div>
 
-                      {/* CHAPTER 4 GRAPHIC: EnqoqCash riddle ticket */}
-                      {step.id === "step4" && (
-                        <div className="my-auto flex items-center justify-center py-2">
-                          <motion.div 
-                            className="bg-white dark:bg-neutral-900 border-2 border-dashed border-[#FF1E27] rounded-xl p-4 w-60 text-center relative overflow-hidden shadow-md"
-                            animate={{ rotateY: [0, 15, 0, -15, 0], y: [0, -5, 0] }}
-                            transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
-                            style={{ perspective: 1000 }}
-                          >
-                            <div className="absolute top-0 left-0 w-full h-[3px] bg-[#FF1E27]" />
-                            <div className="flex justify-between items-center text-[7px] font-mono text-neutral-400 tracking-widest uppercase mb-2">
-                              <span>እንቆቅCash RIDDLE ENTRY</span>
-                              <span className="text-[#FF1E27] font-bold">#N903B</span>
-                            </div>
-                            <div className="w-10 h-10 mx-auto bg-[#FF1E27]/5 rounded-full flex items-center justify-center mb-2 border border-[#FF1E27]/20">
-                              <Coins className="w-5 h-5 text-[#FF1E27]" />
-                            </div>
-                            <h4 className="font-serif italic text-neutral-800 dark:text-neutral-200 text-sm">Trivia Rewards Ledger</h4>
-                            <div className="font-mono text-lg font-black text-[#FF1E27] tracking-tighter mt-1">
-                              +1,500 ETB
-                            </div>
-                            <p className="text-[10px] text-[#FF1E27] font-mono uppercase tracking-[0.2em] mt-1 pr-1 pl-1">
-                              VERIFIED PRIZE PASS
-                            </p>
-                          </motion.div>
-                        </div>
-                      )}
+                  {/* Counter */}
+                  <span
+                    style={{
+                      fontFamily: "monospace",
+                      fontSize: 11,
+                      letterSpacing: "0.18em",
+                      color: panel.textColor,
+                      opacity: 0.28,
+                    }}
+                  >
+                    {String(i + 1).padStart(2, "0")} / {String(N).padStart(2, "0")}
+                  </span>
+                </div>
 
-                      {/* Footer bar */}
-                      <div className="flex items-center justify-between border-t border-neutral-200 pt-3">
-                        <span className="text-[9px] font-mono text-neutral-400">
-                          CHAPTER {step.num} // PORTFOLIO
-                        </span>
-                        <div className="flex items-center gap-1 text-[9px] font-mono text-neutral-500">
-                          <span>YUTOBIA ECOSYSTEM</span>
-                          <ChevronRight className="w-3 h-3 text-[#FF1E27]" />
-                        </div>
-                      </div>
+                {/* ── RIGHT: icon card ── */}
+                <div
+                  style={{
+                    width: "42%",
+                    flexShrink: 0,
+                    background: panel.rightBg,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    position: "relative",
+                    overflow: "hidden",
+                  }}
+                >
+                  {/* Ambient glow */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      background: `radial-gradient(circle at 50% 50%, ${panel.accent}22 0%, transparent 65%)`,
+                      pointerEvents: "none",
+                    }}
+                  />
 
+                  {/* Floating card */}
+                  <motion.div
+                    animate={{ y: [-10, 10, -10] }}
+                    transition={{ repeat: Infinity, duration: 4.5, ease: "easeInOut" }}
+                    style={{
+                      position: "relative",
+                      zIndex: 10,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 18,
+                      padding: "clamp(24px, 4vw, 52px)",
+                      background: panel.bg === "#ffffff" ? "#fff" : "#0e0e0e",
+                      border: `1px solid ${panel.accent}30`,
+                      boxShadow: `0 40px 100px ${panel.accent}20`,
+                      width: "clamp(170px, 25vw, 310px)",
+                      aspectRatio: "1",
+                    }}
+                  >
+                    <Icon
+                      style={{
+                        color: panel.accent,
+                        width: "clamp(40px, 6.5vw, 68px)",
+                        height: "clamp(40px, 6.5vw, 68px)",
+                      }}
+                    />
+                    <div style={{ textAlign: "center" }}>
+                      <p
+                        style={{
+                          fontWeight: 900,
+                          fontSize: "clamp(1rem, 1.8vw, 1.5rem)",
+                          letterSpacing: "-0.02em",
+                          color: panel.bg === "#ffffff" ? "#111" : "#fff",
+                          lineHeight: 1.1,
+                        }}
+                      >
+                        {panel.title}
+                      </p>
+                      <p
+                        style={{
+                          fontFamily: "monospace",
+                          fontSize: 9,
+                          letterSpacing: "0.22em",
+                          textTransform: "uppercase" as const,
+                          color: panel.bg === "#ffffff" ? "#111" : "#fff",
+                          opacity: 0.38,
+                          marginTop: 6,
+                        }}
+                      >
+                        {panel.subtitle}
+                      </p>
                     </div>
+
+                    {panel.num === "04" && (
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                          padding: "5px 12px",
+                          fontFamily: "monospace",
+                          fontSize: 11,
+                          fontWeight: 700,
+                          color: panel.accent,
+                          background: `${panel.accent}14`,
+                          border: `1px solid ${panel.accent}40`,
+                        }}
+                      >
+                        <Coins style={{ width: 14, height: 14 }} />
+                        +1,500 ETB PRIZE
+                      </div>
+                    )}
                   </motion.div>
 
+                  {/* Serial label */}
+                  <span
+                    style={{
+                      position: "absolute",
+                      bottom: 14,
+                      right: 18,
+                      fontFamily: "monospace",
+                      fontSize: 9,
+                      letterSpacing: "0.25em",
+                      color: panel.accent,
+                      opacity: 0.22,
+                    }}
+                  >
+                    SERIES {panel.num}/04
+                  </span>
                 </div>
-              );
-            })}
-          </div>
-
+              </div>
+            );
+          })}
         </div>
 
-        {/* Dynamic Action Trigger at the end of the Story Section */}
-        <motion.div 
-          className="mt-28 md:mt-40 text-center space-y-6 max-w-xl mx-auto border border-rose-100 dark:border-white/5 bg-neutral-50 dark:bg-neutral-900/60 rounded-3xl p-8 md:p-12 relative overflow-hidden group hover:border-[#FF1E27]/40 transition-all duration-300"
-          initial={{ opacity: 0, scale: 0.96 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true, margin: "-100px" }}
+        {/* ── Progress dots ── */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: 22,
+            left: "50%",
+            transform: "translateX(-50%)",
+            display: "flex",
+            gap: 10,
+            zIndex: 50,
+            pointerEvents: "none",
+          }}
         >
-          <div className="absolute top-0 left-0 w-full h-[4px] bg-gradient-to-r from-[#FF1E27] via-neutral-200 dark:via-white/10 to-[#FF1E27]" />
-          <div className="absolute inset-0 bg-[#FF1E27]/[0.015] pointer-events-none" />
-          
-          <motion.h3 
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="font-serif italic text-3xl md:text-4xl text-neutral-900 dark:text-white tracking-tight leading-none"
-          >
-            Ready to test <br />
-            <span className="text-[#FF1E27] font-display font-black tracking-tighter uppercase not-italic">your own mind?</span>
-          </motion.h3>
-          <motion.p 
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-neutral-600 dark:text-neutral-400 text-xs md:text-sm leading-relaxed font-sans font-light"
-          >
-            A diverse treasury of General Knowledge, Sports, Science, and History challenges backed by high-stakes score multipliers awaits. Leap inside the live interactive simulator gameplay environment.
-          </motion.p>
-          
-          <div className="pt-2 flex justify-center">
-            <button
-              onClick={onPlayDemo}
-              className="group flex items-center gap-3 bg-[#FF1E27] hover:bg-[#C90E16] text-white font-display font-bold py-4 px-8 rounded-xl scale-100 hover:scale-[1.03] active:scale-95 transition-all duration-300 shadow-xl shadow-[#FF1E27]/20 cursor-pointer"
-            >
-              <Play className="w-4 h-4 fill-white" />
-              <span>LAUNCH ENQOQ CASH</span>
-              <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </button>
-          </div>
-        </motion.div>
+          {PANELS.map((panel, i) => (
+            <div
+              key={i}
+              style={{
+                height: 6,
+                width: activeIdx === i ? 24 : 6,
+                borderRadius: 3,
+                background: activeIdx === i ? panel.accent : `${panel.accent}50`,
+                transition: "width 0.3s ease, background 0.3s ease",
+              }}
+            />
+          ))}
+        </div>
 
+        {/* ── Scroll hint ── */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: 22,
+            right: 30,
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            fontFamily: "monospace",
+            fontSize: 10,
+            letterSpacing: "0.22em",
+            textTransform: "uppercase",
+            color: "rgba(255,255,255,0.38)",
+            userSelect: "none",
+            pointerEvents: "none",
+            zIndex: 50,
+            opacity: activeIdx === 0 ? 1 : 0,
+            transition: "opacity 0.4s ease",
+          }}
+        >
+          <span>Scroll to explore</span>
+          <motion.span
+            animate={{ x: [0, 5, 0] }}
+            transition={{ repeat: Infinity, duration: 1.4, ease: "easeInOut" }}
+          >
+            →
+          </motion.span>
+        </div>
+      </div>
+
+      {/* ── CTA below the pinned zone ── */}
+      <div className="w-full px-8 sm:px-14 md:px-20 py-24 bg-[#FCFAF6] dark:bg-[#060606] border-t border-neutral-200/40 dark:border-white/5 transition-colors">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-10">
+          <div className="space-y-3">
+            <h3
+              className="font-black tracking-tighter text-neutral-900 dark:text-white leading-tight"
+              style={{ fontSize: "clamp(2rem, 4vw, 3.5rem)" }}
+            >
+              Ready to test<br />
+              <span className="text-[#FF1E27]">your own mind?</span>
+            </h3>
+            <p className="text-neutral-500 dark:text-neutral-400 text-sm max-w-sm leading-relaxed font-light">
+              General Knowledge, Sports, Science, and History challenges backed
+              by high-stakes multipliers. Jump into the live trivia engine.
+            </p>
+          </div>
+          <motion.button
+            onClick={onPlayDemo}
+            whileHover="hov"
+            whileTap={{ scale: 0.97 }}
+            className="relative overflow-hidden flex items-center gap-3 px-10 py-5 text-sm font-bold tracking-widest cursor-pointer shrink-0"
+            style={{ background: "#FF1E27", color: "#fff" }}
+          >
+            <motion.span
+              className="absolute inset-0 bg-black"
+              variants={{ hov: { scaleX: 1 }, rest: { scaleX: 0 } }}
+              initial="rest"
+              style={{ originX: 0 }}
+              transition={{ duration: 0.28, ease: [0.76, 0, 0.24, 1] }}
+            />
+            <Play className="w-4 h-4 fill-white relative z-10" />
+            <span className="relative z-10">LAUNCH ENQOQ CASH</span>
+            <ChevronRight className="w-4 h-4 relative z-10" />
+          </motion.button>
+        </div>
       </div>
     </section>
   );

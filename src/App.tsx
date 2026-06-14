@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence, useScroll, useTransform, useSpring } from "motion/react";
-import HugeHeader from "./components/HugeHeader";
 import HugeHero from "./components/HugeHero";
 import StoryScrollJourney from "./components/StoryScrollJourney";
 import BrandEcosystem from "./components/BrandEcosystem";
@@ -19,33 +18,8 @@ export default function App() {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loadingPhase, setLoadingPhase] = useState("INITIALIZING SYSTEM...");
 
-  // Background scroll effect calculations with multi-step page-to-page transition positions
-  const { scrollYProgress } = useScroll();
-  const bgRotate = useTransform(scrollYProgress, [0, 0.15, 0.32, 0.52, 0.72, 0.87, 1.0], [0, 60, -90, 180, -30, 120, 310]);
-  const bgScale = useTransform(scrollYProgress, [0, 0.15, 0.32, 0.52, 0.72, 0.87, 1.0], [1.0, 0.7, 1.35, 0.65, 1.15, 0.8, 0.55]);
-  const bgX = useTransform(scrollYProgress, [0, 0.15, 0.32, 0.52, 0.72, 0.87, 1.0], ["0%", "-33%", "33%", "0%", "-30%", "25%", "35%"]);
-  const bgY = useTransform(scrollYProgress, [0, 0.15, 0.32, 0.52, 0.72, 0.87, 1.0], ["0px", "-80px", "100px", "-220px", "80px", "120px", "260px"]);
-  const bgOpacity = useTransform(scrollYProgress, [0, 0.15, 0.32, 0.52, 0.72, 0.87, 1.0], [0.10, 0.15, 0.08, 0.14, 0.09, 0.16, 0.06]);
-  
-  // 3D rotation tilts and Z-depth movements for a deep structural spatial parallax
-  const bgRotateX = useTransform(scrollYProgress, [0, 0.15, 0.32, 0.52, 0.72, 0.87, 1.0], [15, -15, 20, -10, 25, -20, 10]);
-  const bgRotateY = useTransform(scrollYProgress, [0, 0.15, 0.32, 0.52, 0.72, 0.87, 1.0], [-15, 20, -25, 15, -10, 25, -15]);
-  const bgZ = useTransform(scrollYProgress, [0, 0.15, 0.32, 0.52, 0.72, 0.87, 1.0], [-100, 50, -180, 80, -120, 150, -50]);
-  const bgInnerRotate = useTransform(scrollYProgress, [0, 0.15, 0.32, 0.52, 0.72, 0.87, 1.0], [0, -45, 60, -95, 30, -60, -150]);
-  
-  // Spring configurations for dynamic premium physical motion interpolation
-  const smoothRotate = useSpring(bgRotate, { stiffness: 60, damping: 26 });
-  const smoothScale = useSpring(bgScale, { stiffness: 60, damping: 26 });
-  const smoothX = useSpring(bgX, { stiffness: 60, damping: 26 });
-  const smoothY = useSpring(bgY, { stiffness: 60, damping: 26 });
-  const smoothOpacity = useSpring(bgOpacity, { stiffness: 60, damping: 26 });
-  
-  const smoothRotateX = useSpring(bgRotateX, { stiffness: 60, damping: 26 });
-  const smoothRotateY = useSpring(bgRotateY, { stiffness: 60, damping: 26 });
-  const smoothZ = useSpring(bgZ, { stiffness: 60, damping: 26 });
-  const smoothInnerRotate = useSpring(bgInnerRotate, { stiffness: 35, damping: 20 });
-
   // Top viewport thin horizontal dynamic scroll progress bar
+  const { scrollYProgress } = useScroll();
   const smoothScrollProgress = useSpring(scrollYProgress, {
     stiffness: 100,
     damping: 24,
@@ -416,155 +390,41 @@ export default function App() {
       </AnimatePresence>
 
       <div className="relative flex flex-col">
-        {/* Scroll-tracked parallax background YouTobia logo watermark */}
-        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden flex items-center justify-center select-none" style={{ perspective: "1500px" }}>
-          <motion.div
-            style={{
-              rotate: smoothRotate,
-              rotateX: smoothRotateX,
-              rotateY: smoothRotateY,
-              z: smoothZ,
-              scale: smoothScale,
-              x: smoothX,
-              y: smoothY,
-              opacity: smoothOpacity,
-              transformStyle: "preserve-3d"
-            }}
-            className="w-[180vw] h-[180vw] max-w-[850px] max-h-[850px] relative flex items-center justify-center shrink-0 transition-colors pointer-events-none"
-          >
-            {/* Layer 1: Ambient Glowing Halo Field in deep 3D space */}
-            <div 
-              style={{ 
-                transform: "translateZ(-140px)",
-                background: "radial-gradient(circle, rgba(255,30,39,0.32) 0%, rgba(255,30,39,0) 65%)"
-              }} 
-              className="absolute inset-0 w-full h-full filter blur-[80px] rounded-full pointer-events-none opacity-40 animate-pulse"
-            />
-
-            {/* Layer 2: Main outer crest background circle slightly recessed inside */}
-            <div
-              style={{
-                transform: "translateZ(-60px)",
-                transformStyle: "preserve-3d"
-              }}
-              className="absolute inset-0 w-full h-full flex items-center justify-center pointer-events-none"
-            >
-              <svg
-                width="100%"
-                height="100%"
-                viewBox="0 0 120 120"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="drop-shadow-[0_0_50px_rgba(255,30,39,0.15)] animate-pulse"
-              >
-                <defs>
-                  <linearGradient id="bgRedGrad" x1="10" y1="10" x2="110" y2="110" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stopColor="#FF5C62" />
-                    <stop offset="50%" stopColor="#FF1E27" />
-                    <stop offset="100%" stopColor="#A30B11" />
-                  </linearGradient>
-                </defs>
-                <path
-                  d="M 60,11 C 30,11 11,32 11,60 C 11,88 28,103 48,107 C 49,90 41,79 34,71 C 26,62 19,53 23,40 C 27,27 39,21 54,23 C 71,25 80,39 82,53 C 84,67 76,80 66,86 C 65,86 52,90 40,84 C 55,94 77,93 89,81 C 102,68 104,45 94,30 C 86,18 73,11 60,11 Z"
-                  fill="url(#bgRedGrad)"
-                />
-              </svg>
-            </div>
-
-            {/* Layer 3: Central Stand Base Sweep */}
-            <div
-              style={{
-                transform: "translateZ(10px)"
-              }}
-              className="absolute inset-0 w-full h-full flex items-center justify-center pointer-events-none"
-            >
-              <svg
-                width="100%"
-                height="100%"
-                viewBox="0 0 120 120"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M 48,107 C 42,108 34,103 28,100 C 24,96 16,78 18,65 C 19,64 21,68 22,72 C 26,88 36,98 48,103 C 49,105 49,106 48,107 Z"
-                  fill="#FF5C62"
-                />
-              </svg>
-            </div>
-
-            {/* Layer 4: Floating 3D Y-Ribbon Core forward in 3D perspective with unique counter-rotation */}
-            <motion.div
-              style={{
-                transform: "translateZ(80px)",
-                rotate: smoothInnerRotate,
-                transformStyle: "preserve-3d"
-              }}
-              className="absolute inset-0 w-full h-full flex items-center justify-center pointer-events-none"
-            >
-              <svg
-                width="100%"
-                height="100%"
-                viewBox="0 0 120 120"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="drop-shadow-[0_15px_30px_rgba(0,0,0,0.3)]"
-              >
-                <defs>
-                  <linearGradient id="bgRibbonGrad" x1="40" y1="20" x2="80" y2="100" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stopColor="#FFFFFF" />
-                    <stop offset="30%" stopColor="#FFA1A5" />
-                    <stop offset="100%" stopColor="#FF1E27" />
-                  </linearGradient>
-                </defs>
-                <path
-                  d="M 42,32 C 40,45 42,55 48,65 C 55,75 66,78 78,74 C 92,70 102,54 96,38 C 94,33 88,40 85,45 C 77,58 64,62 55,54 C 49,49 48,38 46,30 C 45,26 43,26 42,32 Z"
-                  fill="url(#bgRibbonGrad)"
-                />
-              </svg>
-            </motion.div>
-          </motion.div>
-        </div>
 
         {/* Core Sticky Header */}
-        <HugeHeader
-          onNavigate={handleNavigate}
-          activeSection={activeSection}
-          gameScore={gameScore}
-          theme={theme}
-          onToggleTheme={toggleTheme}
-        />
 
         {/* NATURAL VERTICAL MULTI-SECTION FLOW */}
         <main className="w-full relative z-10 flex flex-col">
-          <motion.section 
-            id="home" 
+          {/* HOME + HERO */}
+          <motion.section
+            id="home"
             className="w-full relative"
             initial={{ opacity: 0 }}
             animate={{ opacity: isBooting ? 0 : 1 }}
-            transition={{ duration: 1.0, ease: "easeOut", delay: 0.1 }}
+            transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
           >
             <HugeHero
               onPlayDemo={() => handleNavigate("enqoq-cash")}
               onNavigate={handleNavigate}
+              activeSection={activeSection}
               gameScore={gameScore}
               heroVideoUrl={heroVideoUrl}
               isBooting={isBooting}
             />
           </motion.section>
 
-          <motion.section 
-            id="journey" 
+          <motion.section
+            id="journey"
             className="w-full relative"
-            style={{ transformStyle: "preserve-3d" }}
-            initial={{ opacity: 0, rotateX: 8, y: 50, scale: 0.97, transformPerspective: 1200 }}
-            whileInView={{ opacity: 1, rotateX: 0, y: 0, scale: 1, transformPerspective: 1200 }}
-            viewport={{ once: true, amount: 0.03, margin: "-8% 0px" }}
-            transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true, amount: 0.01 }}
+            transition={{ duration: 0.6 }}
           >
             <StoryScrollJourney onPlayDemo={() => handleNavigate("enqoq-cash")} />
           </motion.section>
 
-          <motion.section 
+          <motion.section
             id="brand-ecosystem" 
             className="w-full relative"
             style={{ transformStyle: "preserve-3d" }}
