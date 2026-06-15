@@ -32,32 +32,11 @@ export default function App() {
     ["#525252", "#b91c1c", "#FF1E27"]
   );
   
-  // Theme Toggle Engine
-  const [theme, setTheme] = useState(() => {
-    try {
-      return localStorage.getItem("theme") || "dark";
-    } catch (e) {
-      return "dark";
-    }
-  });
-
+  // Theme is permanently light — no toggle
   useEffect(() => {
-    const root = document.documentElement;
-    if (theme === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
-    try {
-      localStorage.setItem("theme", theme);
-    } catch (e) {
-      console.warn("Storage item setting failed:", e);
-    }
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
-  };
+    document.documentElement.classList.remove("dark");
+    try { localStorage.removeItem("theme"); } catch { /* noop */ }
+  }, []);
 
   // Control Panel integration state
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
@@ -410,8 +389,6 @@ export default function App() {
               gameScore={gameScore}
               heroVideoUrl={heroVideoUrl}
               isBooting={isBooting}
-              theme={theme}
-              onToggleTheme={toggleTheme}
             />
           </motion.section>
 

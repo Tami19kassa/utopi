@@ -14,8 +14,6 @@ import {
   X,
   Send,
   CheckCircle2,
-  Sun,
-  Moon,
 } from "lucide-react";
 import YutobiaLogo from "./YutobiaLogo";
 
@@ -26,8 +24,6 @@ interface HeroProps {
   gameScore: number;
   heroVideoUrl?: string;
   isBooting?: boolean;
-  theme?: string;
-  onToggleTheme?: () => void;
 }
 
 export const HugeHero: React.FC<HeroProps> = ({
@@ -37,8 +33,6 @@ export const HugeHero: React.FC<HeroProps> = ({
   gameScore,
   heroVideoUrl,
   isBooting = false,
-  theme = "dark",
-  onToggleTheme,
 }) => {
   const [currentMottoIndex, setCurrentMottoIndex] = useState(0);
   const [hoveredBrandId, setHoveredBrandId] = useState<string | null>(null);
@@ -188,78 +182,37 @@ export const HugeHero: React.FC<HeroProps> = ({
           </AnimatePresence>
         </div>
 
-        {/* Right side: theme toggle + Let's talk */}
-        <div className="flex items-center gap-2 shrink-0">
-          {/* Theme toggle */}
-          <motion.button
-            onClick={onToggleTheme}
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.93 }}
-            aria-label="Toggle theme"
-            className="relative flex items-center justify-center h-[48px] sm:h-[52px] w-[48px] sm:w-[52px] cursor-pointer overflow-hidden"
-            style={{
-              background: scrolled ? "rgba(0,0,0,0.85)" : "rgba(0,0,0,0.32)",
-              backdropFilter: "blur(14px)",
-              WebkitBackdropFilter: "blur(14px)",
-            }}
+        {/* Right side: Let's talk */}
+        <motion.button
+          onClick={() => setIsTalkOpen(true)}
+          whileHover="hov"
+          initial="rest"
+          animate="rest"
+          whileTap={{ scale: 0.96 }}
+          className="relative flex items-center gap-1.5 sm:gap-2 h-[48px] sm:h-[52px] px-4 sm:px-6 text-xs sm:text-sm font-bold tracking-wide cursor-pointer overflow-hidden text-white shrink-0"
+          style={{ backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)" }}
+        >
+          <motion.span
+            className="absolute inset-0"
+            style={{ background: "#FF1E27" }}
+            variants={{ hov: { opacity: 0 }, rest: { opacity: 1 } }}
+            transition={{ duration: 0.22 }}
+          />
+          <motion.span
+            className="absolute inset-0"
+            style={{ background: "#16a34a", originX: 0 }}
+            variants={{ hov: { scaleX: 1 }, rest: { scaleX: 0 } }}
+            transition={{ duration: 0.28, ease: [0.76, 0, 0.24, 1] }}
+          />
+          <span className="relative z-10 whitespace-nowrap">Let's talk</span>
+          <motion.div
+            className="relative z-10"
+            variants={{ hov: { x: 3, y: -3 }, rest: { x: 0, y: 0 } }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
           >
-            <AnimatePresence mode="wait">
-              {theme === "dark" ? (
-                <motion.div
-                  key="sun"
-                  initial={{ rotate: -90, opacity: 0, scale: 0.5 }}
-                  animate={{ rotate: 0, opacity: 1, scale: 1 }}
-                  exit={{ rotate: 90, opacity: 0, scale: 0.5 }}
-                  transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                >
-                  <Sun className="w-4 h-4 text-white/70" />
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="moon"
-                  initial={{ rotate: 90, opacity: 0, scale: 0.5 }}
-                  animate={{ rotate: 0, opacity: 1, scale: 1 }}
-                  exit={{ rotate: -90, opacity: 0, scale: 0.5 }}
-                  transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                >
-                  <Moon className="w-4 h-4 text-white/70" />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.button>
-
-          {/* Let's talk */}
-          <motion.button
-            onClick={() => setIsTalkOpen(true)}
-            whileHover="hov"
-            initial="rest"
-            animate="rest"
-            whileTap={{ scale: 0.96 }}
-            className="relative flex items-center gap-1.5 sm:gap-2 h-[48px] sm:h-[52px] px-4 sm:px-6 text-xs sm:text-sm font-bold tracking-wide cursor-pointer overflow-hidden text-white shrink-0"
-            style={{ backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)" }}
-          >
-            <motion.span
-              className="absolute inset-0"
-              style={{ background: "#FF1E27" }}
-              variants={{ hov: { opacity: 0 }, rest: { opacity: 1 } }}
-              transition={{ duration: 0.22 }}
-            />
-            <motion.span
-              className="absolute inset-0"
-              style={{ background: "#16a34a", originX: 0 }}
-              variants={{ hov: { scaleX: 1 }, rest: { scaleX: 0 } }}
-              transition={{ duration: 0.28, ease: [0.76, 0, 0.24, 1] }}
-            />
-            <span className="relative z-10 whitespace-nowrap">Let's talk</span>
-            <motion.div
-              className="relative z-10"
-              variants={{ hov: { x: 3, y: -3 }, rest: { x: 0, y: 0 } }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            >
-              <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            </motion.div>
-          </motion.button>
-        </div>
+            <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          </motion.div>
+        </motion.button>
       </header>
 
       {/* ── LET'S TALK MODAL ── */}
