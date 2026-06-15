@@ -228,7 +228,7 @@ export const HugeHero: React.FC<HeroProps> = ({
               objectFit: "cover",
             }}
           >
-            <source src={heroVideoUrl || "/hero.mp4"} type="video/mp4" />
+            <source src={heroVideoUrl || "/n.mp4"} type="video/mp4" />
           </video>
           {/* Minimal bottom fade only — keeps text readable without killing the video */}
           <div

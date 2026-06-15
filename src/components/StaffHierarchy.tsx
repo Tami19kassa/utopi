@@ -1,7 +1,8 @@
-import React, { useRef, useState, useLayoutEffect, useCallback } from "react";
+import React, { useRef, useState, useLayoutEffect, useEffect } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ChevronDown, ChevronUp, Users } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { X, ChevronDown, Users, Briefcase, RotateCcw } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -10,660 +11,799 @@ interface StaffMember {
   id: string;
   name: string;
   role: string;
-  photo: string; // URL or initials fallback key
-  bio: string;
+  photo: string;
+  history: string;
+  bio?: string;
 }
-
 interface Department {
   id: string;
   name: string;
   color: string;
+  icon: string;
   lead: StaffMember;
   team: StaffMember[];
 }
 
-interface Tier1Member {
-  id: string;
-  name: string;
-  role: string;
-  photo: string;
-  bio: string;
+function staffPhoto(id: string): string {
+  return `/staff/${id}.jpg`;
 }
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
-const EXECUTIVES: Tier1Member[] = [
+const STAKEHOLDERS: StaffMember[] = [
   {
-    id: "exec-1",
-    name: "Tamiru Kassahun",
-    role: "Founder & Chief Executive Officer",
-    photo: "",
-    bio: "Visionary entrepreneur and multimedia architect based in Addis Ababa. Founded YouTobia with the mission to unify Ethiopia's creative, educational, and entertainment industries under one digital conglomerate. Over a decade of experience in media production, digital strategy, and cultural enterprise development.",
+    id: "sh-1",
+    name: "Strategic Partner A",
+    role: "Board Member",
+    photo: staffPhoto("sh-1"),
+    history:
+      "Former executive at a pan-African telecommunications firm with 20 years of experience in cross-border scaling and digital infrastructure investment. He has guided expansion strategies across 12 nations and now sits on YouTobia's advisory board.",
+    bio: "Lead advisor for international expansion.",
   },
   {
-    id: "exec-2",
-    name: "Helina Tesfaye",
-    role: "Co-Founder & Chief Creative Officer",
-    photo: "",
-    bio: "Award-winning creative director and brand strategist. Helina leads the aesthetic vision of YouTobia, overseeing the design language, content philosophy, and brand identity across all five sub-brands. Former creative lead at pan-African media houses.",
+    id: "sh-2",
+    name: "Strategic Partner B",
+    role: "Lead Investor",
+    photo: staffPhoto("sh-2"),
+    history:
+      "Seasoned venture capitalist who has backed over 30 African tech startups. Brings deep financial expertise and a network spanning 15 countries. His portfolio companies collectively employ over 8,000 people across the continent.",
+    bio: "Primary capital partner driving growth rounds.",
+  },
+  {
+    id: "sh-3",
+    name: "Strategic Partner C",
+    role: "Advisory Board",
+    photo: staffPhoto("sh-3"),
+    history:
+      "Former ambassador and policy expert with decades of public sector experience. Provides regulatory and governance oversight to align YouTobia with national digital strategy.",
+    bio: "Policy and compliance advisor.",
   },
 ];
+
+const CEO: StaffMember = {
+  id: "ceo",
+  name: "Tamiru Kassahun",
+  role: "Founder & Chief Executive Officer",
+  photo: staffPhoto("ceo"),
+  history:
+    "Tamiru began his career in 2010 as a freelance media producer in Addis Ababa. Over the next decade he founded three successful tech startups before establishing YouTobia in 2022 to unify Ethiopia's creative, educational, and entertainment industries under one digital conglomerate.",
+  bio: "Visionary entrepreneur and multimedia architect.",
+};
 
 const DEPARTMENTS: Department[] = [
   {
-    id: "qenaview",
-    name: "ቀናView",
-    color: "#0284c7",
+    id: "technology",
+    name: "Technology",
+    color: "#0ea5e9",
+    icon: "⚙",
     lead: {
-      id: "qv-lead",
+      id: "tech-lead",
       name: "Dawit Alemu",
-      role: "Head of Streaming & Distribution",
-      photo: "",
-      bio: "Streaming technology specialist with deep expertise in CDN infrastructure, adaptive bitrate delivery, and OTT platform architecture. Built ቀናView's technical backbone from the ground up.",
+      role: "Chief Technology Officer",
+      photo: staffPhoto("tech-lead"),
+      history:
+        "Previously head of engineering at a major Ethiopian financial institution. He joined YouTobia to architect the proprietary streaming engine and cloud infrastructure from the ground up.",
     },
     team: [
-      {
-        id: "qv-1",
-        name: "Mekdes Girma",
-        role: "Senior Platform Engineer",
-        photo: "",
-        bio: "Full-stack engineer specializing in real-time video processing pipelines and cloud infrastructure. Key architect of ቀናView's multi-region delivery system.",
-      },
-      {
-        id: "qv-2",
-        name: "Berhane Wolde",
-        role: "UX Designer",
-        photo: "",
-        bio: "Product designer focused on intuitive streaming interfaces. Responsible for ቀናView's acclaimed minimal-yet-rich user experience across web and mobile.",
-      },
-      {
-        id: "qv-3",
-        name: "Selam Haile",
-        role: "Content Acquisition Lead",
-        photo: "",
-        bio: "Cultural content curator and licensing specialist. Selam oversees all original programming partnerships and content rights management for ቀናView.",
-      },
+      { id: "tech-1", name: "Mekdes Girma", role: "Senior Full-Stack Engineer", photo: staffPhoto("tech-1"), history: "A full-stack specialist with 6 years of experience in Python and React. Mekdes previously developed national census software and now architects YouTobia's core data pipelines." },
+      { id: "tech-2", name: "Berhane Wolde", role: "UX / UI Designer", photo: staffPhoto("tech-2"), history: "An award-winning designer focused on accessibility and inclusive design. She has shipped over 50 mobile apps for the East African market and leads the YouTobia design system." },
+      { id: "tech-3", name: "Robel Tesfaw", role: "DevOps Engineer", photo: staffPhoto("tech-3"), history: "Infrastructure and CI/CD specialist who manages YouTobia's multi-region cloud deployment." },
     ],
   },
   {
-    id: "etop",
-    name: "eTop Production",
-    color: "#f97316",
-    lead: {
-      id: "etop-lead",
-      name: "Yonas Bekele",
-      role: "Head of Production",
-      photo: "",
-      bio: "Award-winning filmmaker and audio-visual director. Yonas has directed over 50 commercial and cultural projects across East Africa, bringing cinematic excellence to every eTop production.",
-    },
+    id: "admin",
+    name: "Admin",
+    color: "#f59e0b",
+    icon: "🏛",
+    lead: { id: "admin-lead", name: "Natnael Bekele", role: "Head of Administration", photo: staffPhoto("admin-lead"), history: "Natnael has a background in public administration and policy. He ensures the company's internal engines run as smoothly as its external-facing products." },
     team: [
-      {
-        id: "etop-1",
-        name: "Tigist Mengistu",
-        role: "Cinematographer",
-        photo: "",
-        bio: "Renowned visual storyteller with a signature style that blends contemporary African aesthetics with global production standards. Shot campaigns for major Ethiopian brands.",
-      },
-      {
-        id: "etop-2",
-        name: "Abel Tadesse",
-        role: "Sound Designer",
-        photo: "",
-        bio: "Award-winning audio engineer and composer. Abel crafts immersive soundscapes for film, commercial, and branded content, elevating every eTop Production project.",
-      },
+      { id: "admin-1", name: "Sara Tadesse", role: "HR Manager", photo: staffPhoto("admin-1"), history: "Sara handles talent acquisition and employee wellbeing. Previously worked in the NGO sector for 8 years." },
+      { id: "admin-2", name: "Amanuel Tefera", role: "Legal & Compliance Officer", photo: staffPhoto("admin-2"), history: "Corporate lawyer specializing in media licensing and intellectual property." },
     ],
   },
   {
-    id: "yenta",
-    name: "የንታBarsiisaa",
-    color: "#8b5cf6",
-    lead: {
-      id: "yenta-lead",
-      name: "Feven Hailu",
-      role: "Head of Education & Skills",
-      photo: "",
-      bio: "Education technologist and curriculum designer with a passion for democratizing creative skills across Ethiopia. Feven built the YentaBarsiisaa learning architecture from scratch.",
-    },
+    id: "marketing",
+    name: "Marketing",
+    color: "#ec4899",
+    icon: "📣",
+    lead: { id: "mkt-lead", name: "Helina Tesfaye", role: "Marketing Director", photo: staffPhoto("mkt-lead"), history: "Helina led national campaigns for Ethiopia's largest beverage and telecom brands before moving into digital media. She is the architect of YouTobia's bold brand identity." },
     team: [
-      {
-        id: "yenta-1",
-        name: "Robel Tesfaw",
-        role: "Curriculum Developer",
-        photo: "",
-        bio: "Instructional designer specializing in multimedia and visual arts education. Robel develops the core modules that equip thousands of Ethiopian creators with industry-ready skills.",
-      },
-      {
-        id: "yenta-2",
-        name: "Lidiya Solomon",
-        role: "Learning Experience Designer",
-        photo: "",
-        bio: "UX researcher and digital learning strategist. Lidiya ensures every lesson on the platform is engaging, accessible, and outcome-driven for creators at all skill levels.",
-      },
+      { id: "mkt-1", name: "Kalkidan Haile", role: "Social Media Manager", photo: staffPhoto("mkt-1"), history: "Built online communities of over 500K followers across multiple African brands." },
+      { id: "mkt-2", name: "Yohannes Desta", role: "Growth & Analytics Lead", photo: staffPhoto("mkt-2"), history: "Data-driven marketer using cohort analysis and attribution modeling to optimize acquisition." },
+      { id: "mkt-3", name: "Tigist Kebede", role: "Brand Designer", photo: staffPhoto("mkt-3"), history: "Visual storyteller responsible for all marketing collaterals and brand consistency." },
     ],
   },
   {
-    id: "mirxog",
-    name: "ምርXog",
+    id: "content",
+    name: "Content",
     color: "#10b981",
-    lead: {
-      id: "mirxog-lead",
-      name: "Natnael Bekele",
-      role: "Head of Information & Media",
-      photo: "",
-      bio: "Investigative journalist and media analyst with fifteen years covering Ethiopia's technology and cultural landscape. Natnael leads ምርXog's editorial vision and accuracy standards.",
-    },
+    icon: "🎬",
+    lead: { id: "cnt-lead", name: "Yonas Bekele", role: "Head of Content", photo: staffPhoto("cnt-lead"), history: "A former documentary filmmaker whose work has been featured at international film festivals. Yonas brings cinematic storytelling to every production." },
     team: [
-      {
-        id: "mirxog-1",
-        name: "Hana Tesfaye",
-        role: "Senior Journalist",
-        photo: "",
-        bio: "In-depth reporter covering the intersection of technology, arts, and society. Hana's investigative pieces have shaped public discourse on digital media in Ethiopia.",
-      },
-      {
-        id: "mirxog-2",
-        name: "Fikadu Mulatu",
-        role: "Data Analyst",
-        photo: "",
-        bio: "Media intelligence specialist who transforms industry data into actionable insights. Fikadu powers ምርXog's analytics reports and trend forecasting engine.",
-      },
+      { id: "cnt-1", name: "Abel Tadesse", role: "Lead Video Editor", photo: staffPhoto("cnt-1"), history: "With 12 years in the edit suite, Abel is the final creative touch on all eTop productions." },
+      { id: "cnt-2", name: "Bethelehem Wondwosen", role: "Scriptwriter & Producer", photo: staffPhoto("cnt-2"), history: "Award-winning writer crafting scripts for series, short films, and branded docuseries." },
     ],
   },
   {
-    id: "enqoq",
-    name: "እንቆቅCash",
+    id: "quiz",
+    name: "Quiz",
     color: "#FF1E27",
-    lead: {
-      id: "enqoq-lead",
-      name: "Biruk Assefa",
-      role: "Head of Gaming & Rewards",
-      photo: "",
-      bio: "Game designer and behavioral economist who architected the እንቆቅCash trivia engine. Biruk blends cultural knowledge systems with gamification mechanics to create Ethiopia's most engaging quiz platform.",
-    },
+    icon: "🧠",
+    lead: { id: "quiz-lead", name: "Biruk Assefa", role: "Gamification Lead", photo: staffPhoto("quiz-lead"), history: "Biruk spent 5 years studying game mechanics in Europe before returning to build the EnqoqCash platform, blending cultural knowledge with modern gamification." },
     team: [
-      {
-        id: "enqoq-1",
-        name: "Abreham Girma",
-        role: "Game Systems Engineer",
-        photo: "",
-        bio: "Backend engineer specializing in real-time scoring systems, anti-cheat mechanisms, and prize ledger infrastructure. Abreham ensures every game is fair, fast, and reliable.",
-      },
-      {
-        id: "enqoq-2",
-        name: "Bezawit Desta",
-        role: "Community Manager",
-        photo: "",
-        bio: "Player experience specialist and community strategist. Bezawit manages the growing league of እንቆቅCash players, overseeing events, leaderboards, and player relations.",
-      },
-      {
-        id: "enqoq-3",
-        name: "Mikias Habtamu",
-        role: "Question Curator",
-        photo: "",
-        bio: "Trivia expert and cultural researcher who builds and verifies the question database. Mikias ensures every riddle is culturally rich, factually accurate, and appropriately challenging.",
-      },
+      { id: "quiz-1", name: "Abreham Girma", role: "Game Systems Engineer", photo: staffPhoto("quiz-1"), history: "Maintains real-time scoring, anti-cheat systems, and prize ledger infrastructure for EnqoqCash." },
+      { id: "quiz-2", name: "Bezawit Desta", role: "Community Manager", photo: staffPhoto("quiz-2"), history: "Manages the EnqoqCash player league, overseeing events, leaderboards, and player relations." },
+    ],
+  },
+  {
+    id: "operations",
+    name: "Operations",
+    color: "#8b5cf6",
+    icon: "🔧",
+    lead: { id: "ops-lead", name: "Feven Hailu", role: "Operations Lead", photo: staffPhoto("ops-lead"), history: "Feven manages the day-to-day coordination between creative and technical teams, ensuring cross-departmental projects run on time." },
+    team: [
+      { id: "ops-1", name: "Lidiya Solomon", role: "Project Manager", photo: staffPhoto("ops-1"), history: "Lidiya ensures all departmental timelines are met with precision. She introduced agile sprint workflows across the organization." },
+      { id: "ops-2", name: "Mihret Girma", role: "Procurement & Vendor Manager", photo: staffPhoto("ops-2"), history: "Oversees all vendor relationships, equipment procurement, and facility logistics." },
     ],
   },
 ];
 
-// ─── Avatar component — photo or initials fallback ───────────────────────────
-const Avatar: React.FC<{ name: string; photo: string; size?: number; color?: string }> = ({
-  name,
-  photo,
-  size = 56,
-  color = "#FF1E27",
-}) => {
-  const initials = name
-    .split(" ")
-    .map((n) => n[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function getInitials(name: string) {
+  return name.split(" ").map((n: string) => n[0]).slice(0, 2).join("").toUpperCase();
+}
 
+// ─── Glass styles factory ─────────────────────────────────────────────────────
+function glass(accent = "255,255,255", opacity = 0.06, blur = 16) {
+  return {
+    background: `rgba(${accent}, ${opacity})`,
+    backdropFilter: `blur(${blur}px)`,
+    WebkitBackdropFilter: `blur(${blur}px)`,
+    border: "1px solid rgba(255,255,255,0.08)",
+  } as React.CSSProperties;
+}
+
+// ─── Animated word reveal ─────────────────────────────────────────────────────
+const WordReveal: React.FC<{
+  text: string;
+  delay?: number;
+  className?: string;
+  style?: React.CSSProperties;
+}> = ({ text, delay = 0, className, style }) => {
+  const words = text.split(" ");
+  return (
+    <span className={className} style={{ display: "inline", ...style }}>
+      {words.map((word, i) => (
+        <span key={i} style={{ display: "inline-block", overflow: "hidden", marginRight: "0.28em" }}>
+          <motion.span
+            display="inline-block"
+            initial={{ y: "110%", opacity: 0, rotateX: 40 }}
+            whileInView={{ y: "0%", opacity: 1, rotateX: 0 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{
+              duration: 0.75,
+              delay: delay + i * 0.09,
+              ease: [0.16, 1, 0.3, 1],
+            }}
+            style={{ display: "inline-block", transformOrigin: "bottom" }}
+          >
+            {word}
+          </motion.span>
+        </span>
+      ))}
+    </span>
+  );
+};
+
+// ─── Avatar ───────────────────────────────────────────────────────────────────
+const Avatar: React.FC<{
+  name: string;
+  photo: string;
+  size?: number;
+  color?: string;
+  ring?: boolean;
+  square?: boolean;
+}> = ({ name, photo, size = 56, color = "#FF1E27", ring = false, square = false }) => {
+  const [err, setErr] = useState(false);
   return (
     <div
       style={{
         width: size,
         height: size,
-        borderRadius: 4,
-        border: `1.5px solid ${color}`,
-        boxShadow: `0 0 0 3px ${color}18`,
+        borderRadius: square ? 14 : "50%",
+        border: `2px solid ${color}`,
+        boxShadow: ring
+          ? `0 0 0 4px ${color}22, 0 0 28px ${color}55`
+          : `0 0 0 1px ${color}22`,
         overflow: "hidden",
         flexShrink: 0,
-        background: "#111",
+        background: "rgba(255,255,255,0.05)",
+        backdropFilter: "blur(8px)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
       }}
     >
-      {photo ? (
-        <img
-          src={photo}
-          alt={name}
-          style={{ width: "100%", height: "100%", objectFit: "cover" }}
-        />
+      {photo && !err ? (
+        <img src={photo} alt={name} onError={() => setErr(true)}
+          style={{ width: "100%", height: "100%", objectFit: "cover" }} />
       ) : (
-        <span
-          style={{
-            fontWeight: 800,
-            fontSize: size * 0.3,
-            color,
-            letterSpacing: "-0.02em",
-            fontFamily: "inherit",
-          }}
-        >
-          {initials}
+        <span style={{ fontWeight: 800, fontSize: size * 0.28, color, letterSpacing: "-0.02em", userSelect: "none" }}>
+          {getInitials(name)}
         </span>
       )}
     </div>
   );
 };
 
-// ─── Tier-1 executive card ────────────────────────────────────────────────────
-const ExecCard: React.FC<{ member: Tier1Member }> = ({ member }) => (
-  <div
-    style={{
-      background: "#111111",
-      border: "1px solid rgba(229,9,20,0.25)",
-      borderRadius: 12,
-      padding: "24px 20px",
-      width: "clamp(240px, 22vw, 300px)",
-      display: "flex",
-      flexDirection: "column",
-      gap: 14,
-      boxShadow: "0 20px 40px rgba(229,9,20,0.15), 0 4px 16px rgba(0,0,0,0.5)",
-    }}
-  >
-    {/* Top accent */}
-    <div
-      style={{
-        height: 2,
-        background: "linear-gradient(90deg,#FF1E27,#ff6b6b)",
-        borderRadius: 2,
-        marginBottom: 2,
-      }}
-    />
-    <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
-      <Avatar name={member.name} photo={member.photo} size={52} color="#FF1E27" />
-      <div>
-        <p style={{ fontWeight: 800, color: "#fff", fontSize: 15, lineHeight: 1.2, marginBottom: 4 }}>
-          {member.name}
-        </p>
-        <p style={{ fontFamily: "monospace", fontSize: 9, letterSpacing: "0.15em", color: "#FF1E27", textTransform: "uppercase" }}>
-          {member.role}
-        </p>
-      </div>
-    </div>
-    <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", lineHeight: 1.65, fontWeight: 300 }}>
-      {member.bio}
-    </p>
-  </div>
-);
-
-// ─── Tier-3 team member card ──────────────────────────────────────────────────
-const TeamCard: React.FC<{ member: StaffMember; color: string }> = ({ member, color }) => (
-  <div
-    className="team-card"
-    style={{
-      background: "#0d0d0d",
-      border: `1px solid ${color}25`,
-      borderRadius: 10,
-      padding: "18px 16px",
-      width: "clamp(200px, 18vw, 240px)",
-      display: "flex",
-      flexDirection: "column",
-      gap: 12,
-      boxShadow: `0 12px 28px ${color}12, 0 2px 8px rgba(0,0,0,0.4)`,
-      flexShrink: 0,
-    }}
-  >
-    <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-      <Avatar name={member.name} photo={member.photo} size={42} color={color} />
-      <div>
-        <p style={{ fontWeight: 700, color: "#fff", fontSize: 13, lineHeight: 1.2, marginBottom: 3 }}>
-          {member.name}
-        </p>
-        <p style={{ fontFamily: "monospace", fontSize: 8, letterSpacing: "0.14em", color, textTransform: "uppercase" }}>
-          {member.role}
-        </p>
-      </div>
-    </div>
-    <p style={{ fontSize: 11, color: "rgba(255,255,255,0.42)", lineHeight: 1.6, fontWeight: 300 }}>
-      {member.bio}
-    </p>
-  </div>
-);
-
-// ─── Connector SVG between tiers ──────────────────────────────────────────────
-const VerticalConnector: React.FC<{ color?: string }> = ({ color = "#FF1E27" }) => (
-  <div
-    style={{
-      display: "flex",
-      justifyContent: "center",
-      padding: "4px 0",
-    }}
-  >
-    <div
-      style={{
-        width: 1,
-        height: 32,
-        background: `linear-gradient(to bottom, ${color}80, ${color}20)`,
-      }}
-    />
-  </div>
-);
-
-// ─── Tier-2 Department card with expand/collapse ──────────────────────────────
-const DepartmentBranch: React.FC<{
-  dept: Department;
-  isOpen: boolean;
-  onToggle: () => void;
-}> = ({ dept, isOpen, onToggle }) => {
-  const teamRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // Animate team reveal/hide
-  useLayoutEffect(() => {
-    const team = teamRef.current;
-    if (!team) return;
-
-    const cards = team.querySelectorAll<HTMLElement>(".team-card");
-
-    if (isOpen) {
-      // Expand: container height 0 → auto, cards stagger in
-      gsap.set(team, { height: 0, overflow: "hidden" });
-      gsap.to(team, {
-        height: "auto",
-        duration: 0.5,
-        ease: "power3.out",
-        onComplete: () => {
-          gsap.set(team, { overflow: "visible" });
-          // Refresh ScrollTrigger so page height recalculates
-          ScrollTrigger.refresh();
-        },
-      });
-      gsap.fromTo(
-        cards,
-        { opacity: 0, y: -24, rotateX: 15, scale: 0.95 },
-        {
-          opacity: 1,
-          y: 0,
-          rotateX: 0,
-          scale: 1,
-          duration: 0.55,
-          ease: "power3.out",
-          stagger: 0.08,
-          delay: 0.15,
-        }
-      );
-    } else {
-      // Collapse
-      gsap.set(team, { overflow: "hidden" });
-      gsap.to(cards, {
-        opacity: 0,
-        y: -16,
-        scale: 0.95,
-        duration: 0.25,
-        stagger: 0.04,
-        ease: "power2.in",
-      });
-      gsap.to(team, {
-        height: 0,
-        duration: 0.4,
-        ease: "power3.in",
-        delay: 0.15,
-        onComplete: () => ScrollTrigger.refresh(),
-      });
-    }
-  }, [isOpen]);
+// ─── Flip Card ────────────────────────────────────────────────────────────────
+const FlipCard: React.FC<{
+  member: StaffMember;
+  accentColor: string;
+  width: number;
+  height: number;
+  photoSize: number;
+  index?: number;
+}> = ({ member, accentColor, width, height, photoSize, index = 0 }) => {
+  const [flipped, setFlipped] = useState(false);
 
   return (
-    <div
-      ref={containerRef}
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        minWidth: "clamp(200px, 18vw, 260px)",
-      }}
+    <motion.div
+      initial={{ opacity: 0, y: 50, scale: 0.85 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, amount: 0.15 }}
+      transition={{ duration: 0.8, delay: index * 0.14, ease: [0.16, 1, 0.3, 1] }}
+      style={{ width, height, perspective: 1400, cursor: "pointer", flexShrink: 0 }}
+      onClick={() => setFlipped((f) => !f)}
+      whileHover={{ y: -6 }}
+      title={flipped ? "Click to see photo" : "Click to read their story"}
     >
-      {/* Tier-2 lead card */}
-      <button
-        onClick={onToggle}
-        style={{
-          width: "clamp(200px, 18vw, 240px)",
-          background: isOpen ? dept.color : "#111111",
-          border: `1px solid ${dept.color}40`,
-          borderRadius: 10,
-          padding: "16px 14px",
-          cursor: "pointer",
-          textAlign: "left",
-          display: "flex",
-          flexDirection: "column",
-          gap: 10,
-          boxShadow: isOpen
-            ? `0 20px 40px ${dept.color}30, 0 4px 16px rgba(0,0,0,0.5)`
-            : `0 8px 24px ${dept.color}10, 0 2px 8px rgba(0,0,0,0.4)`,
-          transition: "background 0.3s, box-shadow 0.3s",
-          position: "relative",
-        }}
+      <motion.div
+        animate={{ rotateY: flipped ? 180 : 0 }}
+        transition={{ duration: 0.75, ease: [0.4, 0, 0.2, 1] }}
+        style={{ width: "100%", height: "100%", position: "relative", transformStyle: "preserve-3d" }}
       >
-        {/* Dept color bar */}
-        <div
-          style={{
-            height: 2,
-            background: isOpen
-              ? "rgba(255,255,255,0.4)"
-              : `linear-gradient(90deg,${dept.color},transparent)`,
-            borderRadius: 2,
-          }}
-        />
-
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <Avatar name={dept.lead.name} photo={dept.lead.photo} size={40} color={isOpen ? "#fff" : dept.color} />
-          <div style={{ flex: 1 }}>
-            <p style={{ fontWeight: 700, color: isOpen ? "#fff" : "#fff", fontSize: 13, lineHeight: 1.2, marginBottom: 3 }}>
-              {dept.lead.name}
-            </p>
-            <p style={{
-              fontFamily: "monospace", fontSize: 8, letterSpacing: "0.14em",
-              color: isOpen ? "rgba(255,255,255,0.7)" : dept.color, textTransform: "uppercase",
-            }}>
-              {dept.lead.role}
-            </p>
+        {/* FRONT */}
+        <div style={{
+          position: "absolute", inset: 0,
+          backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden",
+          borderRadius: 24, overflow: "hidden",
+          ...glass("255,255,255", 0.07, 20),
+          boxShadow: `0 24px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06), inset 0 1px 0 rgba(255,255,255,0.12)`,
+          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end",
+        }}>
+          {/* Accent bar */}
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, transparent, ${accentColor}, transparent)` }} />
+          {/* Glow blob */}
+          <div style={{ position: "absolute", top: -40, left: "50%", transform: "translateX(-50%)", width: 200, height: 200, borderRadius: "50%", background: `radial-gradient(circle, ${accentColor}22 0%, transparent 70%)`, pointerEvents: "none" }} />
+          {/* Photo */}
+          <div style={{ position: "absolute", inset: 0, bottom: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: "28px 16px 0" }}>
+            <Avatar name={member.name} photo={member.photo} size={photoSize} color={accentColor} ring square />
           </div>
-          {isOpen
-            ? <ChevronUp style={{ color: "rgba(255,255,255,0.6)", width: 14, height: 14, flexShrink: 0 }} />
-            : <ChevronDown style={{ color: dept.color, width: 14, height: 14, flexShrink: 0 }} />
-          }
+          {/* Name strip — glass on glass */}
+          <div style={{
+            width: "100%", padding: "14px 18px 18px", textAlign: "center", flexShrink: 0,
+            background: "rgba(0,0,0,0.55)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
+          }}>
+            <p style={{ fontWeight: 800, color: "#fff", fontSize: 15, lineHeight: 1.2, marginBottom: 5, letterSpacing: "-0.01em" }}>{member.name}</p>
+            <p style={{ fontFamily: "monospace", fontSize: 9, letterSpacing: "0.22em", color: accentColor, textTransform: "uppercase" }}>{member.role}</p>
+          </div>
+          {/* Flip hint */}
+          <div style={{
+            position: "absolute", top: 12, right: 12,
+            display: "flex", alignItems: "center", gap: 4,
+            ...glass("0,0,0", 0.5, 10),
+            border: `1px solid ${accentColor}30`, borderRadius: 20, padding: "4px 9px",
+          }}>
+            <RotateCcw size={9} color={accentColor} />
+            <span style={{ fontFamily: "monospace", fontSize: 8, color: `${accentColor}cc`, letterSpacing: "0.08em" }}>flip</span>
+          </div>
         </div>
 
-        {/* Dept name badge */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{
-            fontFamily: "monospace", fontSize: 9, letterSpacing: "0.2em", fontWeight: 700,
-            color: isOpen ? "rgba(255,255,255,0.5)" : `${dept.color}80`, textTransform: "uppercase",
-          }}>
-            {dept.name}
-          </span>
-          <span style={{
-            fontFamily: "monospace", fontSize: 8, color: isOpen ? "rgba(255,255,255,0.35)" : "rgba(255,255,255,0.2)",
-          }}>
-            {dept.team.length} members ↓
-          </span>
+        {/* BACK */}
+        <div style={{
+          position: "absolute", inset: 0,
+          backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden",
+          transform: "rotateY(180deg)", borderRadius: 24, overflow: "hidden",
+          background: `linear-gradient(160deg, ${accentColor}18 0%, rgba(10,10,10,0.85) 60%)`,
+          backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)",
+          border: `1px solid ${accentColor}45`,
+          boxShadow: `0 24px 64px rgba(0,0,0,0.65), 0 0 40px ${accentColor}18`,
+          display: "flex", flexDirection: "column", padding: "26px 22px", gap: 16,
+        }}>
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, transparent, ${accentColor}, transparent)` }} />
+          <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 8 }}>
+            <Avatar name={member.name} photo={member.photo} size={52} color={accentColor} ring />
+            <div>
+              <p style={{ fontWeight: 800, color: "#fff", fontSize: 14, lineHeight: 1.2, marginBottom: 4 }}>{member.name}</p>
+              <p style={{ fontFamily: "monospace", fontSize: 8, letterSpacing: "0.2em", color: accentColor, textTransform: "uppercase" }}>{member.role}</p>
+            </div>
+          </div>
+          <div style={{ height: 1, background: `linear-gradient(90deg, ${accentColor}45, transparent)` }} />
+          <div style={{ flex: 1, overflowY: "auto" }}>
+            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.72)", lineHeight: 1.82, fontWeight: 300 }}>{member.history}</p>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
+            <RotateCcw size={9} color={`${accentColor}70`} />
+            <span style={{ fontFamily: "monospace", fontSize: 8, color: `${accentColor}55`, letterSpacing: "0.12em" }}>click to flip back</span>
+          </div>
         </div>
-      </button>
-
-      {/* Tier-3 team — animated container */}
-      {isOpen && <VerticalConnector color={dept.color} />}
-
-      <div
-        ref={teamRef}
-        style={{
-          height: 0,
-          overflow: "hidden",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: 10,
-        }}
-      >
-        {dept.team.map((member) => (
-          <TeamCard key={member.id} member={member} color={dept.color} />
-        ))}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 
+// ─── Department Card ──────────────────────────────────────────────────────────
+const DepartmentCard: React.FC<{ dept: Department; index: number; isActive: boolean; onClick: () => void }> = ({
+  dept, index, isActive, onClick,
+}) => (
+  <motion.div
+    initial={{ opacity: 0, y: 44 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, amount: 0.2 }}
+    transition={{ duration: 0.6, delay: index * 0.08, ease: [0.16, 1, 0.3, 1] }}
+    whileHover={{ y: -6 }}
+  >
+    <button
+      onClick={onClick}
+      style={{
+        width: "clamp(155px, 15vw, 190px)",
+        ...glass("255,255,255", isActive ? 0.12 : 0.055, 20),
+        background: isActive
+          ? `linear-gradient(160deg, ${dept.color}28 0%, rgba(255,255,255,0.06) 100%)`
+          : "rgba(255,255,255,0.055)",
+        border: `1px solid ${isActive ? dept.color + "80" : "rgba(255,255,255,0.1)"}`,
+        borderRadius: 22,
+        padding: "24px 18px",
+        cursor: "pointer",
+        display: "flex", flexDirection: "column", alignItems: "center", gap: 14,
+        boxShadow: isActive
+          ? `0 28px 56px ${dept.color}22, 0 0 0 1px ${dept.color}45, inset 0 1px 0 rgba(255,255,255,0.15)`
+          : "0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08)",
+        transition: "all 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
+        position: "relative", overflow: "hidden",
+      }}
+    >
+      {/* Top accent */}
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${dept.color}, transparent)`, opacity: isActive ? 1 : 0.4, transition: "opacity 0.3s" }} />
+      {/* Dept icon */}
+      <div style={{ width: 46, height: 46, borderRadius: "50%", background: `${dept.color}18`, border: `1px solid ${dept.color}38`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>
+        {dept.icon}
+      </div>
+      <Avatar name={dept.lead.name} photo={dept.lead.photo} size={88} color={dept.color} ring={isActive} />
+      <div style={{ textAlign: "center" }}>
+        <p style={{ fontFamily: "monospace", fontSize: 9, letterSpacing: "0.24em", color: dept.color, textTransform: "uppercase", fontWeight: 700, marginBottom: 5 }}>{dept.name}</p>
+        <p style={{ fontWeight: 700, color: "#fff", fontSize: 13, lineHeight: 1.3, marginBottom: 3 }}>{dept.lead.name}</p>
+        <p style={{ fontFamily: "monospace", fontSize: 8, letterSpacing: "0.1em", color: "rgba(255,255,255,0.38)", textTransform: "uppercase" }}>{dept.lead.role}</p>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 4, color: isActive ? dept.color : "rgba(255,255,255,0.28)", transition: "color 0.3s" }}>
+        <Users size={10} />
+        <span style={{ fontSize: 9, fontFamily: "monospace" }}>{dept.team.length} members</span>
+        <motion.div animate={{ rotate: isActive ? 180 : 0 }} transition={{ duration: 0.3 }}>
+          <ChevronDown size={10} />
+        </motion.div>
+      </div>
+    </button>
+  </motion.div>
+);
+
+// ─── Member Card (inside panel) ───────────────────────────────────────────────
+const MemberCard: React.FC<{ member: StaffMember; color: string; index: number; isLead?: boolean }> = ({
+  member, color, index, isLead = false,
+}) => (
+  <motion.div
+    initial={{ opacity: 0, y: 24, scale: 0.96 }}
+    animate={{ opacity: 1, y: 0, scale: 1 }}
+    exit={{ opacity: 0, y: -10, scale: 0.95 }}
+    transition={{ duration: 0.45, delay: index * 0.07, ease: [0.16, 1, 0.3, 1] }}
+    style={{
+      ...glass("255,255,255", isLead ? 0.1 : 0.05, 16),
+      background: isLead
+        ? `linear-gradient(135deg, ${color}18 0%, rgba(255,255,255,0.06) 100%)`
+        : "rgba(255,255,255,0.05)",
+      border: `1px solid ${isLead ? color + "55" : "rgba(255,255,255,0.09)"}`,
+      borderRadius: 18,
+      padding: "22px 20px",
+      display: "flex", gap: 18, alignItems: "flex-start",
+      position: "relative", overflow: "hidden",
+      boxShadow: isLead ? `0 16px 40px ${color}15, inset 0 1px 0 rgba(255,255,255,0.12)` : "inset 0 1px 0 rgba(255,255,255,0.06)",
+    }}
+  >
+    <div style={{ position: "absolute", top: 0, left: 0, width: 3, bottom: 0, background: isLead ? `linear-gradient(to bottom, ${color}, ${color}30)` : `linear-gradient(to bottom, ${color}50, transparent)`, borderRadius: "18px 0 0 18px" }} />
+    <div style={{ paddingLeft: 6 }}>
+      <Avatar name={member.name} photo={member.photo} size={88} color={color} ring={isLead} square />
+    </div>
+    <div style={{ flex: 1, minWidth: 0 }}>
+      {isLead && (
+        <div style={{ display: "inline-block", background: `${color}20`, border: `1px solid ${color}35`, borderRadius: 4, padding: "2px 9px", marginBottom: 8 }}>
+          <span style={{ fontFamily: "monospace", fontSize: 8, letterSpacing: "0.22em", color, textTransform: "uppercase", fontWeight: 700 }}>Department Lead</span>
+        </div>
+      )}
+      <p style={{ fontWeight: 800, color: "#fff", fontSize: 15, lineHeight: 1.2, marginBottom: 4 }}>{member.name}</p>
+      <p style={{ fontFamily: "monospace", fontSize: 9, letterSpacing: "0.16em", color, textTransform: "uppercase", marginBottom: 12 }}>{member.role}</p>
+      <p style={{ fontSize: 12, color: "rgba(255,255,255,0.58)", lineHeight: 1.78, fontWeight: 300 }}>{member.history}</p>
+    </div>
+  </motion.div>
+);
+
+// ─── Department Panel ─────────────────────────────────────────────────────────
+const DepartmentPanel: React.FC<{ dept: Department | null; onClose: () => void }> = ({ dept, onClose }) => {
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, [onClose]);
+
+  return (
+    <AnimatePresence>
+      {dept && (
+        <>
+          <motion.div
+            key="backdrop"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            onClick={onClose}
+            style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", zIndex: 100 }}
+          />
+          <motion.div
+            key="panel"
+            initial={{ y: "100%", opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: "100%", opacity: 0 }}
+            transition={{ type: "spring", damping: 28, stiffness: 220, mass: 0.8 }}
+            style={{
+              position: "fixed", bottom: 0, left: 0, right: 0, maxHeight: "84vh",
+              ...glass("255,255,255", 0.08, 28),
+              background: "rgba(8,8,8,0.85)",
+              borderTop: `2px solid ${dept.color}`,
+              borderRadius: "28px 28px 0 0", zIndex: 101,
+              overflow: "hidden", display: "flex", flexDirection: "column",
+              boxShadow: `0 -32px 80px rgba(0,0,0,0.9), 0 -2px 0 ${dept.color}, inset 0 1px 0 rgba(255,255,255,0.08)`,
+            }}
+          >
+            {/* Header */}
+            <div style={{
+              padding: "22px 32px 18px", borderBottom: `1px solid rgba(255,255,255,0.08)`,
+              display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0,
+              background: `linear-gradient(135deg, ${dept.color}0e 0%, transparent 100%)`,
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                <div style={{ width: 50, height: 50, borderRadius: "50%", background: `${dept.color}18`, border: `1px solid ${dept.color}45`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26 }}>{dept.icon}</div>
+                <div>
+                  <p style={{ fontFamily: "monospace", fontSize: 9, letterSpacing: "0.28em", color: dept.color, textTransform: "uppercase", fontWeight: 700, marginBottom: 3 }}>Department</p>
+                  <h3 style={{ fontWeight: 900, color: "#fff", fontSize: 24, letterSpacing: "-0.025em" }}>{dept.name}</h3>
+                </div>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ ...glass("255,255,255", 0.07, 10), border: `1px solid ${dept.color}32`, borderRadius: 8, padding: "6px 14px", display: "flex", alignItems: "center", gap: 6 }}>
+                  <Briefcase size={12} color={dept.color} />
+                  <span style={{ fontFamily: "monospace", fontSize: 10, color: dept.color, fontWeight: 700 }}>{dept.team.length + 1} members</span>
+                </div>
+                <button
+                  onClick={onClose}
+                  style={{ width: 38, height: 38, borderRadius: "50%", ...glass("255,255,255", 0.07, 10), border: "1px solid rgba(255,255,255,0.12)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(255,255,255,0.5)", transition: "all 0.2s" }}
+                  onMouseEnter={(e) => { const b = e.currentTarget as HTMLButtonElement; b.style.background = "rgba(255,30,39,0.2)"; b.style.borderColor = "rgba(255,30,39,0.4)"; b.style.color = "#FF1E27"; }}
+                  onMouseLeave={(e) => { const b = e.currentTarget as HTMLButtonElement; b.style.background = "rgba(255,255,255,0.07)"; b.style.borderColor = "rgba(255,255,255,0.12)"; b.style.color = "rgba(255,255,255,0.5)"; }}
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            </div>
+            {/* Grid */}
+            <div style={{ padding: "24px 32px 40px", overflowY: "auto", flex: 1, display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))", gap: 16, alignContent: "start" }}>
+              <MemberCard member={dept.lead} color={dept.color} index={0} isLead />
+              {dept.team.map((m, i) => <MemberCard key={m.id} member={m} color={dept.color} index={i + 1} />)}
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+};
+
+// ─── Connector ────────────────────────────────────────────────────────────────
+const Connector: React.FC<{ color?: string; height?: number }> = ({ color = "#FF1E27", height = 52 }) => (
+  <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height, position: "relative" }}>
+    <div style={{ width: 1, height: "100%", background: `linear-gradient(to bottom, ${color}90, ${color}15)` }} />
+    <div style={{ position: "absolute", bottom: 0, width: 7, height: 7, borderRadius: "50%", background: color, boxShadow: `0 0 12px ${color}` }} />
+  </div>
+);
+
+// ─── Tier label — glass pill ──────────────────────────────────────────────────
+const TierLabel: React.FC<{ label: string; sub?: string; color?: string }> = ({ label, sub, color = "rgba(255,255,255,0.55)" }) => (
+  <motion.div
+    initial={{ opacity: 0, scale: 0.88 }}
+    whileInView={{ opacity: 1, scale: 1 }}
+    viewport={{ once: true }}
+    transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+    style={{ textAlign: "center", marginBottom: 28 }}
+  >
+    <div style={{
+      display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 4,
+      ...glass("255,255,255", 0.06, 14),
+      border: "1px solid rgba(255,255,255,0.1)",
+      borderRadius: 100, padding: "8px 20px",
+      boxShadow: "inset 0 1px 0 rgba(255,255,255,0.1)",
+    }}>
+      <span style={{ fontFamily: "monospace", fontSize: 9, letterSpacing: "0.32em", color, textTransform: "uppercase", fontWeight: 700 }}>{label}</span>
+      {sub && <span style={{ fontFamily: "monospace", fontSize: 8, letterSpacing: "0.16em", color: "rgba(255,255,255,0.3)", textTransform: "uppercase" }}>{sub}</span>}
+    </div>
+  </motion.div>
+);
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 export const StaffHierarchy: React.FC = () => {
-  const [openDepts, setOpenDepts] = useState<Set<string>>(new Set());
+  const [activeDept, setActiveDept] = useState<Department | null>(null);
   const sectionRef = useRef<HTMLElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Entrance animation for exec cards and dept row
+  const toggleDept = (dept: Department) =>
+    setActiveDept((p) => (p?.id === dept.id ? null : dept));
+
+  useEffect(() => {
+    document.body.style.overflow = activeDept ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [activeDept]);
+
+  // Video parallax scroll
   useLayoutEffect(() => {
-    const section = sectionRef.current;
-    if (!section) return;
-
-    const execCards = section.querySelectorAll<HTMLElement>(".exec-card");
-    const deptCards = section.querySelectorAll<HTMLElement>(".dept-card-wrapper");
-
-    gsap.set(execCards, { opacity: 0, y: 40 });
-    gsap.set(deptCards, { opacity: 0, y: 50 });
-
+    const video = videoRef.current;
+    if (!video) return;
     const ctx = gsap.context(() => {
-      ScrollTrigger.create({
-        trigger: section,
-        start: "top 70%",
-        once: true,
-        onEnter: () => {
-          gsap.to(execCards, {
-            opacity: 1, y: 0, duration: 0.8, ease: "power3.out", stagger: 0.12,
-          });
-          gsap.to(deptCards, {
-            opacity: 1, y: 0, duration: 0.8, ease: "power3.out", stagger: 0.09, delay: 0.4,
-          });
+      gsap.to(video, {
+        yPercent: 15, ease: "none",
+        scrollTrigger: {
+          trigger: sectionRef.current!,
+          start: "top bottom", end: "bottom top", scrub: true,
         },
       });
-    }, section);
-
+    });
     return () => ctx.revert();
   }, []);
 
-  const toggleDept = useCallback((id: string) => {
-    setOpenDepts((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }, []);
-
   return (
-    <section
-      ref={sectionRef}
-      id="staff"
-      style={{
-        background: "#080808",
-        padding: "clamp(60px, 10vw, 120px) clamp(24px, 6vw, 80px)",
-        borderTop: "1px solid rgba(229,9,20,0.12)",
-        overflow: "hidden",
-      }}
-    >
-      {/* Section header */}
-      <div style={{ marginBottom: 64, maxWidth: 640 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-          <Users style={{ color: "#FF1E27", width: 16, height: 16 }} />
-          <span style={{
-            fontFamily: "monospace", fontSize: 10, letterSpacing: "0.3em",
-            color: "#FF1E27", fontWeight: 700, textTransform: "uppercase",
-          }}>
-            Our Team // Organizational Structure
-          </span>
+    <>
+      <section
+        ref={sectionRef}
+        id="staff"
+        style={{
+          background: "transparent",
+          padding: "clamp(80px, 12vw, 140px) clamp(24px, 6vw, 80px)",
+          borderTop: "1px solid rgba(255,255,255,0.06)",
+          overflow: "hidden",
+          position: "relative",
+        }}
+      >
+        {/* ── Background video + layers ──────────────────────────────── */}
+        <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
+          <video
+            ref={videoRef}
+            src="/c.mp4"
+            autoPlay muted loop playsInline
+            style={{
+              position: "absolute", inset: 0, width: "100%", height: "115%",
+              objectFit: "cover", opacity: 0.18,
+              filter: "saturate(0.3) brightness(0.5)",
+            }}
+          />
+          {/* Dark base so glass cards are always readable */}
+          <div style={{ position: "absolute", inset: 0, background: "rgba(4,4,4,0.72)" }} />
+          {/* Radial vignette */}
+          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 90% 70% at 50% 50%, transparent 0%, rgba(4,4,4,0.9) 80%)" }} />
+          {/* Fine grid */}
+          <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
+          {/* Floating red orb — top right */}
+          <div style={{ position: "absolute", top: "-10%", right: "-5%", width: "40vw", height: "40vw", borderRadius: "50%", background: "radial-gradient(circle, rgba(255,30,39,0.08) 0%, transparent 65%)", pointerEvents: "none" }} />
+          {/* Floating gold orb — bottom left */}
+          <div style={{ position: "absolute", bottom: "-8%", left: "-4%", width: "35vw", height: "35vw", borderRadius: "50%", background: "radial-gradient(circle, rgba(255,215,0,0.05) 0%, transparent 65%)", pointerEvents: "none" }} />
         </div>
-        <h2 style={{
-          fontSize: "clamp(2rem, 5vw, 4rem)", fontWeight: 900, letterSpacing: "-0.03em",
-          lineHeight: 0.95, color: "#fff", marginBottom: 16,
-        }}>
-          The People Behind<br />
-          <span style={{ color: "#FF1E27" }}>YouTobia.</span>
-        </h2>
-        <p style={{ fontSize: 14, color: "rgba(255,255,255,0.4)", lineHeight: 1.7, fontWeight: 300 }}>
-          Click any department lead to expand their team. Our structure reflects our philosophy — executive vision flows into specialized branches, each operating with autonomy and excellence.
-        </p>
-      </div>
 
-      {/* ── TIER 1: Executives ── */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 0 }}>
-        <span style={{
-          fontFamily: "monospace", fontSize: 9, letterSpacing: "0.25em",
-          color: "rgba(229,9,20,0.5)", textTransform: "uppercase", marginBottom: 16, fontWeight: 700,
-        }}>
-          Tier 1 — Executive Leadership
-        </span>
+        {/* ── Creative Header ─────────────────────────────────────────── */}
+        <div style={{ textAlign: "center", marginBottom: "clamp(60px, 10vw, 100px)", position: "relative" }}>
 
-        {/* Exec cards row */}
-        <div style={{ display: "flex", gap: 20, flexWrap: "wrap", justifyContent: "center" }}>
-          {EXECUTIVES.map((exec) => (
-            <div key={exec.id} className="exec-card">
-              <ExecCard member={exec} />
+          {/* Eyebrow pill */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 10, marginBottom: 28,
+              ...glass("255,30,39", 0.08, 14),
+              border: "1px solid rgba(255,30,39,0.25)",
+              borderRadius: 100, padding: "8px 20px",
+              boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 20px rgba(255,30,39,0.1)",
+            }}
+          >
+            <Users size={11} color="#FF1E27" />
+            <span style={{ fontFamily: "monospace", fontSize: 9, letterSpacing: "0.35em", color: "#FF1E27", fontWeight: 700, textTransform: "uppercase" }}>
+              Organizational Structure
+            </span>
+          </motion.div>
+
+          {/* Headline — word-by-word reveal with mixed sizes */}
+          <div style={{ marginBottom: 12, lineHeight: 1, position: "relative" }}>
+            {/* Line 1 — thin italic "The" + big "People" */}
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "baseline", gap: "0.3em", flexWrap: "wrap", marginBottom: 8 }}>
+              <span style={{ display: "inline-block", overflow: "hidden" }}>
+                <motion.span
+                  initial={{ y: "110%", opacity: 0 }}
+                  whileInView={{ y: "0%", opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8, delay: 0, ease: [0.16, 1, 0.3, 1] }}
+                  style={{
+                    display: "inline-block",
+                    fontStyle: "italic",
+                    fontWeight: 300,
+                    fontSize: "clamp(1.6rem, 4vw, 3.4rem)",
+                    color: "rgba(255,255,255,0.5)",
+                    letterSpacing: "0.04em",
+                  }}
+                >
+                  The
+                </motion.span>
+              </span>
+              <span style={{ display: "inline-block", overflow: "hidden" }}>
+                <motion.span
+                  initial={{ y: "110%", opacity: 0 }}
+                  whileInView={{ y: "0%", opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+                  style={{
+                    display: "inline-block",
+                    fontWeight: 900,
+                    fontSize: "clamp(2.8rem, 7vw, 6.5rem)",
+                    color: "#fff",
+                    letterSpacing: "-0.04em",
+                  }}
+                >
+                  People
+                </motion.span>
+              </span>
             </div>
-          ))}
-        </div>
 
-        {/* Connector to T2 */}
-        <VerticalConnector color="#FF1E27" />
-
-        {/* Horizontal line spanning T2 */}
-        <div style={{
-          width: "min(90%, 1100px)", height: 1,
-          background: "linear-gradient(90deg, transparent, rgba(229,9,20,0.35), transparent)",
-          marginBottom: 0,
-        }} />
-      </div>
-
-      {/* ── TIER 2 + TIER 3: Departments ── */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: 0 }}>
-        <span style={{
-          fontFamily: "monospace", fontSize: 9, letterSpacing: "0.25em",
-          color: "rgba(255,255,255,0.2)", textTransform: "uppercase", margin: "12px 0 20px", fontWeight: 700,
-        }}>
-          Tier 2 — Department Leads // Click to Expand Team
-        </span>
-
-        {/* All 5 departments in a horizontal row */}
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: 16,
-            justifyContent: "center",
-            alignItems: "flex-start",
-            width: "100%",
-          }}
-        >
-          {DEPARTMENTS.map((dept) => (
-            <div key={dept.id} className="dept-card-wrapper">
-              <DepartmentBranch
-                dept={dept}
-                isOpen={openDepts.has(dept.id)}
-                onToggle={() => toggleDept(dept.id)}
-              />
+            {/* Line 2 — "Behind" outlined + "YouTobia." solid red */}
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "baseline", gap: "0.25em", flexWrap: "wrap" }}>
+              <span style={{ display: "inline-block", overflow: "hidden" }}>
+                <motion.span
+                  initial={{ y: "110%", opacity: 0 }}
+                  whileInView={{ y: "0%", opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                  style={{
+                    display: "inline-block",
+                    fontWeight: 900,
+                    fontSize: "clamp(2.8rem, 7vw, 6.5rem)",
+                    letterSpacing: "-0.04em",
+                    /* outlined text */
+                    color: "transparent",
+                    WebkitTextStroke: "1.5px rgba(255,255,255,0.35)",
+                  }}
+                >
+                  Behind
+                </motion.span>
+              </span>
+              <span style={{ display: "inline-block", overflow: "hidden" }}>
+                <motion.span
+                  initial={{ y: "110%", opacity: 0 }}
+                  whileInView={{ y: "0%", opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.85, delay: 0.32, ease: [0.16, 1, 0.3, 1] }}
+                  style={{
+                    display: "inline-block",
+                    fontWeight: 900,
+                    fontSize: "clamp(2.8rem, 7vw, 6.5rem)",
+                    letterSpacing: "-0.04em",
+                    background: "linear-gradient(135deg, #FF1E27 0%, #ff6b6b 50%, #FF1E27 100%)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                  }}
+                >
+                  YouTobia.
+                </motion.span>
+              </span>
             </div>
-          ))}
-        </div>
-      </div>
 
-      {/* Footer note */}
-      <div style={{ marginTop: 80, textAlign: "center" }}>
-        <p style={{
-          fontFamily: "monospace", fontSize: 9, letterSpacing: "0.25em",
-          color: "rgba(255,255,255,0.15)", textTransform: "uppercase",
-        }}>
-          YouTobia Multimedia P.L.C. — Addis Ababa, Ethiopia
-        </p>
-      </div>
-    </section>
+            {/* Decorative horizontal rule with glow */}
+            <motion.div
+              initial={{ scaleX: 0, opacity: 0 }}
+              whileInView={{ scaleX: 1, opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              style={{
+                marginTop: 20,
+                height: 1,
+                background: "linear-gradient(90deg, transparent, rgba(255,30,39,0.5), rgba(255,215,0,0.3), rgba(255,30,39,0.5), transparent)",
+                boxShadow: "0 0 16px rgba(255,30,39,0.3)",
+                transformOrigin: "center",
+              }}
+            />
+          </div>
+
+          {/* Tagline — character stagger */}
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            style={{
+              fontSize: "clamp(12px, 1.4vw, 15px)",
+              color: "rgba(255,255,255,0.38)",
+              lineHeight: 1.9,
+              fontWeight: 300,
+              maxWidth: 520,
+              margin: "20px auto 0",
+              letterSpacing: "0.02em",
+            }}
+          >
+            From founding stakeholders to every team member —{" "}
+            <span style={{
+              color: "rgba(255,255,255,0.7)",
+              fontStyle: "italic",
+            }}>
+              flip a card
+            </span>{" "}
+            to read their story.{" "}
+            <span style={{
+              ...glass("255,255,255", 0.08, 8),
+              border: "1px solid rgba(255,255,255,0.12)",
+              borderRadius: 4,
+              padding: "2px 8px",
+              display: "inline",
+              fontSize: "0.9em",
+              color: "rgba(255,255,255,0.55)",
+              letterSpacing: "0.03em",
+            }}>
+              Click a department to meet the team.
+            </span>
+          </motion.p>
+        </div>
+
+        {/* ── TIER 0: Stakeholders ─────────────────────────────────────── */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <TierLabel label="Stakeholders" sub="Founding Partners & Board Members" color="rgba(255,215,0,0.75)" />
+          <div style={{ display: "flex", gap: "clamp(16px, 3vw, 32px)", flexWrap: "wrap", justifyContent: "center", alignItems: "flex-start" }}>
+            {STAKEHOLDERS.map((s, i) => (
+              <FlipCard key={s.id} member={s} accentColor="#FFD700" width={230} height={340} photoSize={170} index={i} />
+            ))}
+          </div>
+          <Connector color="#FFD700" height={56} />
+          <div style={{ width: "min(560px, 82%)", height: 1, background: "linear-gradient(90deg, transparent, rgba(255,215,0,0.3), transparent)" }} />
+        </div>
+
+        {/* ── TIER 1: CEO ───────────────────────────────────────────────── */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <Connector color="#FF1E27" height={56} />
+          <TierLabel label="Chief Executive Officer" color="rgba(255,30,39,0.8)" />
+          <FlipCard member={CEO} accentColor="#FF1E27" width={300} height={420} photoSize={230} />
+          <Connector color="#FF1E27" height={56} />
+          <div style={{ width: "min(92%, 1280px)", height: 1, background: "linear-gradient(90deg, transparent, rgba(255,30,39,0.35), transparent)" }} />
+        </div>
+
+        {/* ── TIER 2: Departments ───────────────────────────────────────── */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: 0 }}>
+          <TierLabel label="Departments" sub="Click to explore team members" />
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "clamp(12px, 2vw, 22px)", justifyContent: "center", alignItems: "flex-start", width: "100%", maxWidth: 1260 }}>
+            {DEPARTMENTS.map((dept, i) => (
+              <DepartmentCard key={dept.id} dept={dept} index={i} isActive={activeDept?.id === dept.id} onClick={() => toggleDept(dept)} />
+            ))}
+          </div>
+        </div>
+
+        {/* ── Footer ────────────────────────────────────────────────────── */}
+        <div style={{ marginTop: "clamp(64px, 9vw, 110px)", textAlign: "center" }}>
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1 }}
+            style={{ fontFamily: "monospace", fontSize: 9, letterSpacing: "0.3em", color: "rgba(255,255,255,0.1)", textTransform: "uppercase" }}
+          >
+            YouTobia Multimedia P.L.C. — Addis Ababa, Ethiopia
+          </motion.p>
+        </div>
+      </section>
+
+      <DepartmentPanel dept={activeDept} onClose={() => setActiveDept(null)} />
+    </>
   );
 };
 
