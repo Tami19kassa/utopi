@@ -99,36 +99,39 @@ export const HugeHero: React.FC<HeroProps> = ({
   return (
     <>
       {/* ── NAVBAR ── */}
-      <header className="fixed top-4 left-4 right-4 z-50 flex items-start justify-between">
+      <header className="fixed top-3 left-3 right-3 sm:top-4 sm:left-4 sm:right-4 z-50 flex items-start justify-between gap-2">
+        {/* Left side: logo + menu — constrained so it never overflows */}
         <div
-          className="flex items-stretch h-[52px] transition-all duration-300"
+          className="flex items-stretch h-[48px] sm:h-[52px] min-w-0 overflow-hidden shrink"
           style={{
-            background: scrolled ? "rgba(0,0,0,0.80)" : "rgba(0,0,0,0.28)",
+            background: scrolled ? "rgba(0,0,0,0.85)" : "rgba(0,0,0,0.32)",
             backdropFilter: "blur(14px)",
             WebkitBackdropFilter: "blur(14px)",
           }}
         >
+          {/* Logo */}
           <motion.button
             onClick={() => handleNavClick("home")}
             whileHover={{ backgroundColor: "#e0181f" }}
             whileTap={{ scale: 0.94 }}
-            className="flex items-center justify-center w-[52px] h-[52px] bg-[#FF1E27] shrink-0 cursor-pointer overflow-hidden"
+            className="flex items-center justify-center w-[48px] sm:w-[52px] h-full bg-[#FF1E27] shrink-0 cursor-pointer overflow-hidden"
             aria-label="Home"
           >
             <motion.div whileHover={{ scale: 1.15, rotate: -8 }} transition={{ type: "spring", stiffness: 300, damping: 18 }}>
-              <YutobiaLogo size={28} showText={false} />
+              <YutobiaLogo size={26} showText={false} />
             </motion.div>
           </motion.button>
 
           <AnimatePresence mode="wait">
             {!isMenuOpen ? (
+              /* Collapsed: single "Menu" button */
               <motion.button
                 key="menu-btn"
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 onClick={() => setIsMenuOpen(true)}
                 whileHover={{ backgroundColor: "rgba(255,255,255,0.10)" }}
                 whileTap={{ scale: 0.96 }}
-                className="relative flex items-center px-5 text-white text-sm font-medium tracking-wide cursor-pointer whitespace-nowrap"
+                className="relative flex items-center px-4 sm:px-5 text-white text-sm font-medium tracking-wide cursor-pointer whitespace-nowrap"
               >
                 <span className="relative">
                   Menu
@@ -136,7 +139,13 @@ export const HugeHero: React.FC<HeroProps> = ({
                 </span>
               </motion.button>
             ) : (
-              <motion.div key="nav-links" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-stretch">
+              /* Expanded: nav links — scrollable horizontally on mobile */
+              <motion.div
+                key="nav-links"
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="flex items-stretch overflow-x-auto"
+                style={{ scrollbarWidth: "none" }}
+              >
                 {navLinks.map((link, i) => {
                   const isActive = activeSection === link.id;
                   const isHov = hoveredLink === link.id;
@@ -149,7 +158,7 @@ export const HugeHero: React.FC<HeroProps> = ({
                       onMouseEnter={() => setHoveredLink(link.id)}
                       onMouseLeave={() => setHoveredLink(null)}
                       whileTap={{ scale: 0.96 }}
-                      className="relative flex items-center px-4 text-sm font-medium tracking-wide border-r border-white/10 cursor-pointer whitespace-nowrap overflow-hidden"
+                      className="relative flex items-center px-3 sm:px-4 text-xs sm:text-sm font-medium tracking-wide border-r border-white/10 cursor-pointer whitespace-nowrap overflow-hidden shrink-0"
                       style={{ color: isActive || isHov ? "#fff" : "rgba(255,255,255,0.7)" }}
                     >
                       <motion.span className="absolute inset-0 bg-white/10" initial={false} animate={{ scaleY: isHov ? 1 : 0 }} style={{ originY: 1 }} transition={{ duration: 0.2 }} />
@@ -158,12 +167,13 @@ export const HugeHero: React.FC<HeroProps> = ({
                     </motion.button>
                   );
                 })}
+                {/* Close button */}
                 <motion.button
                   initial={{ opacity: 0, scale: 0.7 }} animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.2, delay: navLinks.length * 0.045 }}
                   onClick={() => setIsMenuOpen(false)}
                   whileHover={{ backgroundColor: "rgba(255,255,255,0.18)" }}
-                  className="flex items-center justify-center w-[52px] bg-white/10 text-white cursor-pointer"
+                  className="flex items-center justify-center w-[48px] sm:w-[52px] shrink-0 bg-white/10 text-white cursor-pointer"
                 >
                   <motion.div whileHover={{ rotate: 90 }} transition={{ type: "spring", stiffness: 260, damping: 18 }}>
                     <X className="w-4 h-4" />
@@ -174,40 +184,211 @@ export const HugeHero: React.FC<HeroProps> = ({
           </AnimatePresence>
         </div>
 
-        {/* Let's talk */}
+        {/* Right side: Let's talk — shrinks text on very small screens */}
         <motion.button
           onClick={() => setIsTalkOpen(true)}
           whileHover="hov"
           initial="rest"
           animate="rest"
           whileTap={{ scale: 0.96 }}
-          className="pointer-events-auto relative flex items-center gap-2 h-[52px] px-6 text-sm font-bold tracking-wide cursor-pointer overflow-hidden text-white"
+          className="relative flex items-center gap-1.5 sm:gap-2 h-[48px] sm:h-[52px] px-4 sm:px-6 text-xs sm:text-sm font-bold tracking-wide cursor-pointer overflow-hidden text-white shrink-0"
           style={{ backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)" }}
         >
-          {/* Base: red */}
           <motion.span
             className="absolute inset-0"
             style={{ background: "#FF1E27" }}
             variants={{ hov: { opacity: 0 }, rest: { opacity: 1 } }}
             transition={{ duration: 0.22 }}
           />
-          {/* Hover: green sweep */}
           <motion.span
             className="absolute inset-0"
             style={{ background: "#16a34a", originX: 0 }}
             variants={{ hov: { scaleX: 1 }, rest: { scaleX: 0 } }}
             transition={{ duration: 0.28, ease: [0.76, 0, 0.24, 1] }}
           />
-          <span className="relative z-10">Let's talk</span>
+          <span className="relative z-10 whitespace-nowrap">Let's talk</span>
           <motion.div
             className="relative z-10"
             variants={{ hov: { x: 3, y: -3 }, rest: { x: 0, y: 0 } }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
           >
-            <ArrowUpRight className="w-4 h-4" />
+            <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </motion.div>
         </motion.button>
       </header>
+
+      {/* ── LET'S TALK MODAL ── */}
+      <AnimatePresence>
+        {isTalkOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              key="talk-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              onClick={() => { if (!submitted) setIsTalkOpen(false); }}
+              className="fixed inset-0 z-60 bg-black/70"
+              style={{ backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}
+            />
+
+            {/* Panel */}
+            <motion.div
+              key="talk-panel"
+              initial={{ x: "100%", opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: "100%", opacity: 0 }}
+              transition={{ type: "spring", damping: 28, stiffness: 220, mass: 0.8 }}
+              className="fixed top-0 right-0 bottom-0 z-61 w-full max-w-md flex flex-col"
+              style={{
+                background: "rgba(8,8,8,0.96)",
+                backdropFilter: "blur(24px)",
+                WebkitBackdropFilter: "blur(24px)",
+                borderLeft: "1px solid rgba(255,255,255,0.08)",
+                boxShadow: "-24px 0 80px rgba(0,0,0,0.8)",
+              }}
+            >
+              {/* Header */}
+              <div
+                className="flex items-center justify-between p-6 pb-5 shrink-0"
+                style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}
+              >
+                <div>
+                  <p className="font-mono text-[10px] tracking-widest text-[#FF1E27] uppercase font-bold mb-1">
+                    YouTobia Multimedia
+                  </p>
+                  <h2 className="text-xl font-display font-black text-white tracking-tight">
+                    Let's Talk
+                  </h2>
+                </div>
+                <button
+                  onClick={() => setIsTalkOpen(false)}
+                  className="w-9 h-9 rounded-full flex items-center justify-center cursor-pointer transition-all duration-200"
+                  style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,30,39,0.15)"; (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,30,39,0.4)"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.06)"; (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.1)"; }}
+                >
+                  <X className="w-4 h-4 text-white/60" />
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="flex-1 overflow-y-auto p-6">
+                <AnimatePresence mode="wait">
+                  {submitted ? (
+                    <motion.div
+                      key="success"
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ type: "spring", damping: 20, stiffness: 200 }}
+                      className="h-full flex flex-col items-center justify-center text-center gap-5 py-16"
+                    >
+                      <div
+                        className="w-16 h-16 rounded-full flex items-center justify-center"
+                        style={{ background: "rgba(34,197,94,0.12)", border: "1px solid rgba(34,197,94,0.3)" }}
+                      >
+                        <CheckCircle2 className="w-8 h-8 text-green-400" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-display font-black text-white mb-2">Message Sent!</h3>
+                        <p className="text-sm text-neutral-500 leading-relaxed max-w-xs">
+                          Thank you for reaching out. The YouTobia team will get back to you shortly.
+                        </p>
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <motion.form
+                      key="form"
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      onSubmit={handleSubmit}
+                      className="space-y-5"
+                    >
+                      <p className="text-sm text-neutral-500 leading-relaxed">
+                        Ready to collaborate or learn more? Drop us a message and we'll respond promptly.
+                      </p>
+
+                      {[
+                        { id: "name", label: "Full Name *", placeholder: "e.g. Dawit Alemu", type: "text", required: true },
+                        { id: "email", label: "Email Address *", placeholder: "you@example.com", type: "email", required: true },
+                        { id: "company", label: "Company / Organisation", placeholder: "Optional", type: "text", required: false },
+                      ].map((field) => (
+                        <div key={field.id} className="space-y-1.5">
+                          <label className="block text-[10px] font-mono tracking-widest text-neutral-500 uppercase">
+                            {field.label}
+                          </label>
+                          <input
+                            type={field.type}
+                            required={field.required}
+                            placeholder={field.placeholder}
+                            value={formData[field.id as keyof typeof formData]}
+                            onChange={(e) => setFormData((p) => ({ ...p, [field.id]: e.target.value }))}
+                            className="w-full text-sm text-white placeholder:text-neutral-600 focus:outline-none transition-colors duration-200"
+                            style={{
+                              background: "rgba(255,255,255,0.05)",
+                              border: "1px solid rgba(255,255,255,0.1)",
+                              borderRadius: 10,
+                              padding: "11px 14px",
+                            }}
+                            onFocus={(e) => { (e.target as HTMLInputElement).style.borderColor = "rgba(255,30,39,0.5)"; }}
+                            onBlur={(e) => { (e.target as HTMLInputElement).style.borderColor = "rgba(255,255,255,0.1)"; }}
+                          />
+                        </div>
+                      ))}
+
+                      <div className="space-y-1.5">
+                        <label className="block text-[10px] font-mono tracking-widest text-neutral-500 uppercase">
+                          Message
+                        </label>
+                        <textarea
+                          rows={4}
+                          placeholder="Tell us about your project or inquiry…"
+                          value={formData.message}
+                          onChange={(e) => setFormData((p) => ({ ...p, message: e.target.value }))}
+                          className="w-full text-sm text-white placeholder:text-neutral-600 focus:outline-none transition-colors duration-200 resize-none"
+                          style={{
+                            background: "rgba(255,255,255,0.05)",
+                            border: "1px solid rgba(255,255,255,0.1)",
+                            borderRadius: 10,
+                            padding: "11px 14px",
+                          }}
+                          onFocus={(e) => { (e.target as HTMLTextAreaElement).style.borderColor = "rgba(255,30,39,0.5)"; }}
+                          onBlur={(e) => { (e.target as HTMLTextAreaElement).style.borderColor = "rgba(255,255,255,0.1)"; }}
+                        />
+                      </div>
+
+                      <motion.button
+                        type="submit"
+                        disabled={loading || !formData.name || !formData.email}
+                        whileHover={{ scale: 1.015 }}
+                        whileTap={{ scale: 0.97 }}
+                        className="w-full text-white font-display font-bold py-3.5 rounded-xl cursor-pointer flex items-center justify-center gap-2 disabled:opacity-40 transition-opacity"
+                        style={{
+                          background: "linear-gradient(135deg,#FF1E27,#c90e16)",
+                          boxShadow: "0 8px 24px rgba(255,30,39,0.25)",
+                        }}
+                      >
+                        {loading ? (
+                          <span className="font-mono text-xs tracking-widest animate-pulse">SENDING…</span>
+                        ) : (
+                          <>
+                            <span>SEND MESSAGE</span>
+                            <Send className="w-4 h-4" />
+                          </>
+                        )}
+                      </motion.button>
+                    </motion.form>
+                  )}
+                </AnimatePresence>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* ── HERO ── */}
       <div id="home" className="relative min-h-screen overflow-hidden flex flex-col justify-end pb-16 px-6 sm:px-10 md:px-16">
