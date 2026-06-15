@@ -220,18 +220,6 @@ export const HugeFooter: React.FC<FooterProps> = ({ onNavigate, socials }) => {
           </div>
         </div>
 
-        {/* Infinite kinetic typography marquee banner */}
-        <div className="relative w-full overflow-hidden h-24 sm:h-32 md:h-40 border-y border-neutral-100 dark:border-white/5 flex items-center select-none pointer-events-none mb-4">
-          <motion.div
-            animate={{ x: ["0%", "-50%"] }}
-            transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
-            className="flex gap-16 whitespace-nowrap text-[4rem] sm:text-[6rem] md:text-[8rem] font-display font-black tracking-tighter text-neutral-100 uppercase dark:text-neutral-950/60 leading-none"
-          >
-            <span className="flex items-center gap-12">YOUTOBIA <span className="text-[#FF1E27] text-2xl">•</span> THE MULTIMEDIA STANDARD <span className="text-[#FF1E27] text-2xl">•</span> ADDIS ABABA <span className="text-[#FF1E27] text-2xl">•</span></span>
-            <span className="flex items-center gap-12">YOUTOBIA <span className="text-[#FF1E27] text-2xl">•</span> THE MULTIMEDIA STANDARD <span className="text-[#FF1E27] text-2xl">•</span> ADDIS ABABA <span className="text-[#FF1E27] text-2xl">•</span></span>
-          </motion.div>
-        </div>
-
         {/* Bottom grid footer details */}
         <div className="pt-12 border-t border-neutral-200 flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-neutral-500 font-mono">
           <span>© {new Date().getFullYear()} YouTobia Multimedia. Protected worldwide under local Ethiopian statutes.</span>
