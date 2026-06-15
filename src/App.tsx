@@ -410,6 +410,8 @@ export default function App() {
               gameScore={gameScore}
               heroVideoUrl={heroVideoUrl}
               isBooting={isBooting}
+              theme={theme}
+              onToggleTheme={toggleTheme}
             />
           </motion.section>
 
