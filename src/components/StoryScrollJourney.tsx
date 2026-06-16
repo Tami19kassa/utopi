@@ -218,7 +218,7 @@ export const StoryScrollJourney: React.FC<{ onPlayDemo: () => void }> = ({ onPla
                       marginBottom: 24,
                       padding: "4px 12px",
                       fontSize: 10,
-                      fontFamily: "monospace",
+                      fontFamily: "Montserrat",
                       letterSpacing: "0.2em",
                       fontWeight: 700,
                       textTransform: "uppercase" as const,
@@ -257,7 +257,7 @@ export const StoryScrollJourney: React.FC<{ onPlayDemo: () => void }> = ({ onPla
                   {/* Subtitle */}
                   <p
                     style={{
-                      fontFamily: "monospace",
+                      fontFamily: "Montserrat",
                       fontSize: 11,
                       letterSpacing: "0.2em",
                       textTransform: "uppercase" as const,
@@ -291,7 +291,7 @@ export const StoryScrollJourney: React.FC<{ onPlayDemo: () => void }> = ({ onPla
                         key={t}
                         style={{
                           fontSize: 10,
-                          fontFamily: "monospace",
+                          fontFamily: "Montserrat",
                           letterSpacing: "0.2em",
                           padding: "4px 12px",
                           textTransform: "uppercase" as const,
@@ -309,7 +309,7 @@ export const StoryScrollJourney: React.FC<{ onPlayDemo: () => void }> = ({ onPla
                   {/* Counter */}
                   <span
                     style={{
-                      fontFamily: "monospace",
+                      fontFamily: "Montserrat",
                       fontSize: 11,
                       letterSpacing: "0.18em",
                       color: panel.textColor,
@@ -384,7 +384,7 @@ export const StoryScrollJourney: React.FC<{ onPlayDemo: () => void }> = ({ onPla
                       </p>
                       <p
                         style={{
-                          fontFamily: "monospace",
+                          fontFamily: "Montserrat",
                           fontSize: 9,
                           letterSpacing: "0.22em",
                           textTransform: "uppercase" as const,
@@ -404,7 +404,7 @@ export const StoryScrollJourney: React.FC<{ onPlayDemo: () => void }> = ({ onPla
                           alignItems: "center",
                           gap: 8,
                           padding: "5px 12px",
-                          fontFamily: "monospace",
+                          fontFamily: "Montserrat",
                           fontSize: 11,
                           fontWeight: 700,
                           color: panel.accent,
@@ -424,7 +424,7 @@ export const StoryScrollJourney: React.FC<{ onPlayDemo: () => void }> = ({ onPla
                       position: "absolute",
                       bottom: 14,
                       right: 18,
-                      fontFamily: "monospace",
+                      fontFamily: "Montserrat",
                       fontSize: 9,
                       letterSpacing: "0.25em",
                       color: panel.accent,
@@ -475,7 +475,7 @@ export const StoryScrollJourney: React.FC<{ onPlayDemo: () => void }> = ({ onPla
             display: "flex",
             alignItems: "center",
             gap: 6,
-            fontFamily: "monospace",
+            fontFamily: "Montserrat",
             fontSize: 10,
             letterSpacing: "0.22em",
             textTransform: "uppercase",

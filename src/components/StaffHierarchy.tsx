@@ -285,7 +285,7 @@ const FlipCard: React.FC<{
             background: "rgba(0,0,0,0.55)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
           }}>
             <p style={{ fontWeight: 800, color: "#fff", fontSize: 15, lineHeight: 1.2, marginBottom: 5, letterSpacing: "-0.01em" }}>{member.name}</p>
-            <p style={{ fontFamily: "monospace", fontSize: 9, letterSpacing: "0.22em", color: accentColor, textTransform: "uppercase" }}>{member.role}</p>
+            <p style={{ fontFamily: "Montserrat", fontSize: 9, letterSpacing: "0.22em", color: accentColor, textTransform: "uppercase" }}>{member.role}</p>
           </div>
           {/* Flip hint */}
           <div style={{
@@ -295,7 +295,7 @@ const FlipCard: React.FC<{
             border: `1px solid ${accentColor}30`, borderRadius: 20, padding: "4px 9px",
           }}>
             <RotateCcw size={9} color={accentColor} />
-            <span style={{ fontFamily: "monospace", fontSize: 8, color: `${accentColor}cc`, letterSpacing: "0.08em" }}>flip</span>
+            <span style={{ fontFamily: "Montserrat", fontSize: 8, color: `${accentColor}cc`, letterSpacing: "0.08em" }}>flip</span>
           </div>
         </div>
 
@@ -315,7 +315,7 @@ const FlipCard: React.FC<{
             <Avatar name={member.name} photo={member.photo} size={52} color={accentColor} ring />
             <div>
               <p style={{ fontWeight: 800, color: "#fff", fontSize: 14, lineHeight: 1.2, marginBottom: 4 }}>{member.name}</p>
-              <p style={{ fontFamily: "monospace", fontSize: 8, letterSpacing: "0.2em", color: accentColor, textTransform: "uppercase" }}>{member.role}</p>
+              <p style={{ fontFamily: "Montserrat", fontSize: 8, letterSpacing: "0.2em", color: accentColor, textTransform: "uppercase" }}>{member.role}</p>
             </div>
           </div>
           <div style={{ height: 1, background: `linear-gradient(90deg, ${accentColor}45, transparent)` }} />
@@ -324,7 +324,7 @@ const FlipCard: React.FC<{
           </div>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
             <RotateCcw size={9} color={`${accentColor}70`} />
-            <span style={{ fontFamily: "monospace", fontSize: 8, color: `${accentColor}55`, letterSpacing: "0.12em" }}>click to flip back</span>
+            <span style={{ fontFamily: "Montserrat", fontSize: 8, color: `${accentColor}55`, letterSpacing: "0.12em" }}>click to flip back</span>
           </div>
         </div>
       </motion.div>
@@ -371,13 +371,13 @@ const DepartmentCard: React.FC<{ dept: Department; index: number; isActive: bool
       </div>
       <Avatar name={dept.lead.name} photo={dept.lead.photo} size={88} color={dept.color} ring={isActive} />
       <div style={{ textAlign: "center" }}>
-        <p style={{ fontFamily: "monospace", fontSize: 9, letterSpacing: "0.24em", color: dept.color, textTransform: "uppercase", fontWeight: 700, marginBottom: 5 }}>{dept.name}</p>
+        <p style={{ fontFamily: "Montserrat", fontSize: 9, letterSpacing: "0.24em", color: dept.color, textTransform: "uppercase", fontWeight: 700, marginBottom: 5 }}>{dept.name}</p>
         <p style={{ fontWeight: 700, color: "#fff", fontSize: 13, lineHeight: 1.3, marginBottom: 3 }}>{dept.lead.name}</p>
-        <p style={{ fontFamily: "monospace", fontSize: 8, letterSpacing: "0.1em", color: "rgba(255,255,255,0.38)", textTransform: "uppercase" }}>{dept.lead.role}</p>
+        <p style={{ fontFamily: "Montserrat", fontSize: 8, letterSpacing: "0.1em", color: "rgba(255,255,255,0.38)", textTransform: "uppercase" }}>{dept.lead.role}</p>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 4, color: isActive ? dept.color : "rgba(255,255,255,0.28)", transition: "color 0.3s" }}>
         <Users size={10} />
-        <span style={{ fontSize: 9, fontFamily: "monospace" }}>{dept.team.length} members</span>
+        <span style={{ fontSize: 9, fontFamily: "Montserrat" }}>{dept.team.length} members</span>
         <motion.div animate={{ rotate: isActive ? 180 : 0 }} transition={{ duration: 0.3 }}>
           <ChevronDown size={10} />
         </motion.div>
@@ -415,11 +415,11 @@ const MemberCard: React.FC<{ member: StaffMember; color: string; index: number; 
     <div style={{ flex: 1, minWidth: 0 }}>
       {isLead && (
         <div style={{ display: "inline-block", background: `${color}20`, border: `1px solid ${color}35`, borderRadius: 4, padding: "2px 9px", marginBottom: 8 }}>
-          <span style={{ fontFamily: "monospace", fontSize: 8, letterSpacing: "0.22em", color, textTransform: "uppercase", fontWeight: 700 }}>Department Lead</span>
+          <span style={{ fontFamily: "Montserrat", fontSize: 8, letterSpacing: "0.22em", color, textTransform: "uppercase", fontWeight: 700 }}>Department Lead</span>
         </div>
       )}
       <p style={{ fontWeight: 800, color: "#fff", fontSize: 15, lineHeight: 1.2, marginBottom: 4 }}>{member.name}</p>
-      <p style={{ fontFamily: "monospace", fontSize: 9, letterSpacing: "0.16em", color, textTransform: "uppercase", marginBottom: 12 }}>{member.role}</p>
+      <p style={{ fontFamily: "Montserrat", fontSize: 9, letterSpacing: "0.16em", color, textTransform: "uppercase", marginBottom: 12 }}>{member.role}</p>
       <p style={{ fontSize: 12, color: "rgba(255,255,255,0.58)", lineHeight: 1.78, fontWeight: 300 }}>{member.history}</p>
     </div>
   </motion.div>
@@ -467,14 +467,14 @@ const DepartmentPanel: React.FC<{ dept: Department | null; onClose: () => void }
               <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
                 <div style={{ width: 50, height: 50, borderRadius: "50%", background: `${dept.color}18`, border: `1px solid ${dept.color}45`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26 }}>{dept.icon}</div>
                 <div>
-                  <p style={{ fontFamily: "monospace", fontSize: 9, letterSpacing: "0.28em", color: dept.color, textTransform: "uppercase", fontWeight: 700, marginBottom: 3 }}>Department</p>
+                  <p style={{ fontFamily: "Montserrat", fontSize: 9, letterSpacing: "0.28em", color: dept.color, textTransform: "uppercase", fontWeight: 700, marginBottom: 3 }}>Department</p>
                   <h3 style={{ fontWeight: 900, color: "#fff", fontSize: 24, letterSpacing: "-0.025em" }}>{dept.name}</h3>
                 </div>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <div style={{ ...glass("255,255,255", 0.07, 10), border: `1px solid ${dept.color}32`, borderRadius: 8, padding: "6px 14px", display: "flex", alignItems: "center", gap: 6 }}>
                   <Briefcase size={12} color={dept.color} />
-                  <span style={{ fontFamily: "monospace", fontSize: 10, color: dept.color, fontWeight: 700 }}>{dept.team.length + 1} members</span>
+                  <span style={{ fontFamily: "Montserrat", fontSize: 10, color: dept.color, fontWeight: 700 }}>{dept.team.length + 1} members</span>
                 </div>
                 <button
                   onClick={onClose}
@@ -522,8 +522,8 @@ const TierLabel: React.FC<{ label: string; sub?: string; color?: string }> = ({ 
       borderRadius: 100, padding: "8px 20px",
       boxShadow: "inset 0 1px 0 rgba(255,255,255,0.1)",
     }}>
-      <span style={{ fontFamily: "monospace", fontSize: 9, letterSpacing: "0.32em", color, textTransform: "uppercase", fontWeight: 700 }}>{label}</span>
-      {sub && <span style={{ fontFamily: "monospace", fontSize: 8, letterSpacing: "0.16em", color: "rgba(255,255,255,0.3)", textTransform: "uppercase" }}>{sub}</span>}
+      <span style={{ fontFamily: "Montserrat", fontSize: 9, letterSpacing: "0.32em", color, textTransform: "uppercase", fontWeight: 700 }}>{label}</span>
+      {sub && <span style={{ fontFamily: "Montserrat", fontSize: 8, letterSpacing: "0.16em", color: "rgba(255,255,255,0.3)", textTransform: "uppercase" }}>{sub}</span>}
     </div>
   </motion.div>
 );
@@ -613,7 +613,7 @@ export const StaffHierarchy: React.FC = () => {
             }}
           >
             <Users size={11} color="#FF1E27" />
-            <span style={{ fontFamily: "monospace", fontSize: 9, letterSpacing: "0.35em", color: "#FF1E27", fontWeight: 700, textTransform: "uppercase" }}>
+            <span style={{ fontFamily: "Montserrat", fontSize: 9, letterSpacing: "0.35em", color: "#FF1E27", fontWeight: 700, textTransform: "uppercase" }}>
               Organizational Structure
             </span>
           </motion.div>
@@ -795,7 +795,7 @@ export const StaffHierarchy: React.FC = () => {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 1 }}
-            style={{ fontFamily: "monospace", fontSize: 9, letterSpacing: "0.3em", color: "rgba(255,255,255,0.1)", textTransform: "uppercase" }}
+            style={{ fontFamily: "Montserrat", fontSize: 9, letterSpacing: "0.3em", color: "rgba(255,255,255,0.1)", textTransform: "uppercase" }}
           >
             YouTobia Multimedia P.L.C. — Addis Ababa, Ethiopia
           </motion.p>

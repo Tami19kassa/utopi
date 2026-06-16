@@ -75,7 +75,7 @@ const ValueCard: React.FC<{ val: ValItem; index: number; cardWidth?: string | nu
         </div>
         <div style={{ position: "relative", zIndex: 2,
           background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.4)", borderRadius: 100, padding: "3px 12px" }}>
-          <span style={{ fontFamily: "monospace", fontSize: 9, letterSpacing: "0.25em",
+          <span style={{ fontFamily: "Montserrat", fontSize: 9, letterSpacing: "0.25em",
             color: "rgba(255,255,255,0.9)", textTransform: "uppercase", fontWeight: 700 }}>
             VALUE.{String(index + 1).padStart(2, "0")}
           </span>
@@ -95,10 +95,10 @@ const ValueCard: React.FC<{ val: ValItem; index: number; cardWidth?: string | nu
         <div style={{ height: 1, background: `linear-gradient(90deg, ${accent.top}30, transparent)` }} />
         <p style={{ fontSize: 12, color: "#6b6b6b", lineHeight: 1.65, fontWeight: 300, flex: 1 }}>{val.desc}</p>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 6 }}>
-          <span style={{ fontFamily: "monospace", fontSize: 8, letterSpacing: "0.2em", color: accent.top, textTransform: "uppercase", fontWeight: 700 }}>
+          <span style={{ fontFamily: "Montserrat", fontSize: 8, letterSpacing: "0.2em", color: accent.top, textTransform: "uppercase", fontWeight: 700 }}>
             YouTobia P.L.C.
           </span>
-          <span style={{ fontFamily: "monospace", fontSize: 8, letterSpacing: "0.12em", color: "#c4c4c4", textTransform: "uppercase" }}>
+          <span style={{ fontFamily: "Montserrat", fontSize: 8, letterSpacing: "0.12em", color: "#c4c4c4", textTransform: "uppercase" }}>
             {String(index + 1).padStart(2, "0")} / 05
           </span>
         </div>
@@ -217,12 +217,12 @@ const ValuesDesktopScroll: React.FC<{ values: ValItem[] }> = ({ values }) => {
           {values.map((v, i) => (
             <div key={i} style={{ height: "100vh", display: "flex", alignItems: "center",
               justifyContent: "center", flexDirection: "column", gap: 6 }}>
-              <span style={{ fontFamily: "monospace", fontWeight: 900, lineHeight: 1,
+              <span style={{ fontFamily: "Montserrat", fontWeight: 900, lineHeight: 1,
                 fontSize: "clamp(4rem,9vw,10rem)", color: "rgba(255,255,255,0.04)",
                 letterSpacing: "-0.05em", userSelect: "none" }}>
                 {String(i + 1).padStart(2, "0")}
               </span>
-              <span style={{ fontFamily: "monospace", fontSize: 9, letterSpacing: "0.3em",
+              <span style={{ fontFamily: "Montserrat", fontSize: 9, letterSpacing: "0.3em",
                 color: CARD_ACCENTS[i].top, opacity: 0.55, textTransform: "uppercase", userSelect: "none" }}>
                 {v.title}
               </span>
